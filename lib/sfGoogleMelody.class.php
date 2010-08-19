@@ -19,12 +19,12 @@ class sfGoogleMelody extends sfOAuth1
 
 
 
-  public function getContacts($uid)
+  public function getContacts()
   {
-    $url = 'http://www.google.com/m8/feeds/contacts/default/full';//.urlencode($uid).'/full';
+    $url = 'http://www.google.com/m8/feeds/contacts/default/full';
     $this->params = array('alt' => 'json', 'max-results' => 99999999);
-    $request = OAuthRequest::from_consumer_and_token($this->getConsumer(), $this->getToken(), 'GET', $url, $this->params);
-    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $this->getConsumer(), $this->getToken());
+    $request = OAuthRequest::from_consumer_and_token($this->getConsumer(), $this->getToken('oauth'), 'GET', $url, $this->params);
+    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $this->getConsumer(), $this->getToken('oauth'));
 
     $url = $request->to_url();
 

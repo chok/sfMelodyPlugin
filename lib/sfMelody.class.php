@@ -13,7 +13,7 @@ class sfMelody
     }
 
     $provider = strtolower(isset($config['provider'])?$config['provider']:$name);
-    $class = 'sf'.sfInflector::camelize($provider.'_o_auth');
+    $class = 'sf'.sfInflector::camelize($provider.'_melody');
 
     $key = isset($config['key'])?$config['key']:null;
     $secret = isset($config['secret'])?$config['secret']:null;
@@ -30,20 +30,38 @@ class sfMelody
     return $oauth;
   }
 
-  public function connect($user)
+  public static function getTokenStatuses()
   {
-    $user->setAttribute('provider', $this->getName());
-    $this->requestAuth($this->getController());
+    $reflection = new ReflectionClass('Token');
+
+    $statuses = array();
+    foreach($reflection->getConstants() as $constant => $value)
+    {
+      if(strpos($constant, 'STATUS_'))
+      {
+        $statuses[$constant] = $value;
+      }
+    }
+
+    return $statuses;
   }
 
-
-  public function connect($user)
+  public static function deleteTokens($service = null, $user = null, $status = null)
   {
-    $this->getRequestToken();
+    $callable = array(self::getTokenOperationByOrm(), 'deleteRequestTokens');
 
-    $user->setAttribute('token', $this->getToken());
-    $user->setAttribute('provider', $this->getName());
+    call_user_func($callable, $service, $user, $status);
+  }
 
-    $this->requestAuth($this->getController());
+  public static function getTokenOperationByOrm()
+  {
+    if(class_exists('Doctrine'))
+    {
+      return Doctrine::getTable('Token');
+    }
+    else
+    {
+      return 'TokenPeer';
+    }
   }
 }
