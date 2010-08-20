@@ -1,0 +1,3 @@
+melody_access:
+  url: /access/:service
+  param: { module: sfMelody, action: access }

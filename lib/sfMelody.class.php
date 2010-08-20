@@ -48,7 +48,7 @@ class sfMelody
 
   public static function deleteTokens($service = null, $user = null, $status = null)
   {
-    $callable = array(self::getTokenOperationByOrm(), 'deleteRequestTokens');
+    $callable = array(self::getTokenOperationByOrm(), 'deleteTokens');
 
     call_user_func($callable, $service, $user, $status);
   }
