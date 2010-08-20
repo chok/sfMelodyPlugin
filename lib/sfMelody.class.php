@@ -3,7 +3,7 @@ class sfMelody
 {
   public static function getInstance($name, $config = array(), sfWebController $controller = null)
   {
-    $default = sfConfig::get('app_oauth_'.$name, array());
+    $default = sfConfig::get('app_melody_'.$name, array());
 
     $config = array_merge($config, $default);
 
@@ -48,9 +48,14 @@ class sfMelody
 
   public static function deleteTokens($service = null, $user = null, $status = null)
   {
-    $callable = array(self::getTokenOperationByOrm(), 'deleteTokens');
+    return self::execute('deleteTokens', array($service, $user, $status));
+  }
 
-    call_user_func($callable, $service, $user, $status);
+  public static function execute($method, $arguments)
+  {
+    $callable = array(self::getTokenOperationByOrm(), $method);
+
+    return call_user_func_array($callable, $arguments);
   }
 
   public static function getTokenOperationByOrm()

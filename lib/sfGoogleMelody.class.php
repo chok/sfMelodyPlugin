@@ -23,6 +23,11 @@ class sfGoogleMelody extends sfOAuth1
     return array('alt' => 'json', 'max-results' => 99999999);
   }
 
+  public function getDefaultUrlParamaters()
+  {
+    return array('me' => 'default/full');
+  }
+
   public function setScopes($scopes)
   {
     $this->scopes = array_unique($scopes);

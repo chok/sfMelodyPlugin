@@ -21,7 +21,7 @@ class sfMelodyUser extends sfGuardSecurityUser
 
       $this->setAttribute('callback_'.$service, $oauth->getCallback());
       $oauth->setCallback('@melody_access?service='.$service);
-      $oauth->connect($this->getGuardUser());
+      $oauth->connect($this);
     }
     else
     {
@@ -34,8 +34,27 @@ class sfMelodyUser extends sfGuardSecurityUser
     return !is_null($this->getToken($service, Token::STATUS_ACCESS));
   }
 
-  public function getToken($service, $status = null)
+  public function getToken($service, $status = null, $session = false, $remove_in_session = false)
   {
+    if($session)
+    {
+      $status = Token::STATUS_REQUEST?'request':'access';
+      $token = $this->getAttribute($service.'_'.$status.'_token');
+      if($remove_in_session && $token)
+      {
+        $this->getAttributeHolder()->remove($service.'_'.$status.'_token');
+      }
+
+      if($token)
+      {
+        return unserialize($token);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
     $tokens = $this->getTokens();
 
     if(!is_null($status))
@@ -58,7 +77,7 @@ class sfMelodyUser extends sfGuardSecurityUser
 
   public function getTokens()
   {
-    if(is_null($this->tokens))
+    if(is_null($this->tokens) && $this->isAuthenticated())
     {
       $callable = array(sfMelody::getTokenOperationByOrm(), 'findByUserId');
 
@@ -74,10 +93,10 @@ class sfMelodyUser extends sfGuardSecurityUser
     return $this->tokens;
   }
 
-  public function getApi($service, $config = array())
+  public function getApi($service, $config = array(), $session)
   {
-    $token = $this->getToken($service, Token::STATUS_ACCESS);
-    $config = array_merge(array('token' => $token), $config);
+    $token = $this->getToken($service, Token::STATUS_ACCESS, $session);
+    $config = array_merge($config, array('token' => $token));
 
     return sfMelody::getInstance($service, $config);
   }
