@@ -1,0 +1,291 @@
+# sfMelodyPlugin #
+
+
+sfMelodyPlugin brings:
+
+ * Easy connection between other service supports OAuth like Facebook, Yahoo, Google
+ * For example you can use facebook api without fbml or javascript Api. It's can be an easy way to use facebook connect
+ 
+ 
+## Installation ##
+
+
+This plugin require sfDoctrineOAuthPlugin and sfDoctrineGuardPlugin. The propel version is not implemented yet.
+
+ * Install
+ 
+	    $ symfony plugin:install sfMelodyPlugin
+	 
+ * Clear cache
+ 
+	    $ symfony cc
+	  
+ * Enable the sfMelody module in settings.yml:
+ 
+        all:
+          .settings:
+          ...
+            enabled_modules: 
+              - sfMelody
+              - ...
+          
+ * Override the user in apps/my-app/lib/myUser.class.php:
+ 
+        class myUser extends sfMelodyUser
+        
+ * Rebuild model and db because there is a new model class 'Token'
+ 
+## Melodies ##
+
+
+At this time sfMelody have 8 melodies :) :
+
+ * Facebook
+ * Google
+ * Yahoo 
+ * LinkedIn
+ * MySpace
+ * Twitter
+ * Neutral1  #A base class to support OAuth1
+ * Neutral2  #A base class to support OAuth2
+ 
+ 
+ ## Configuration ##
+ 
+ 
+In app.yml, here is all options available :
+
+    all:
+      melody:
+        create_user: true             # create a new user if not logged when you connect to a service
+        name:
+          key:  my_service_key
+          secret: my_secret_key
+          callback: @mymodule_index   # or absolute url
+          
+          #needed for google or facebook
+          api: [contacts, ...]        # only for google - easy way to set scopes
+          scope: [permission_1, ...]  # for google and facebook to set permissions - for google prefere api parameter
+          
+          #optional
+          provider: provider          #like google, facebook -optional if 'name' config key is the name of the provider
+          request_token_url: url      # override the url - for OAuth 1 implementation only
+          request_auth_url: url
+          access_token_url: url
+          namespaces:                 # namespaces are used to make some api calls - see namespace Section
+            ns1: http://my.name.space
+            ...
+          aliases:                    # Alias is an easy way to simplify api calls
+            me: my/alias   
+            ...     
+          auth_parameters:
+            param1: value
+          call_parameters:
+            param1: value
+          access_parameters:
+            param1: value
+          output_format: json
+          create_user: true
+          
+          #optional only for OAuth 1
+          request_parameters:
+            param1: value
+          request_token_url: url
+          
+          
+          
+          
+In an action:
+
+    $this->getUser()->connect('name');
+    
+    
+    
+    
+This action redirect to the callback specified in the app.yml
+
+
+
+In an other action when you have the autorization:
+
+    $this->getUser()->getMelody('name')->getMe();  #see section Api for more informations
+  
+  
+## Example ##
+
+
+We try a sample with facebook, Register an application (see section Register application to have url to register apps).
+Then put the config in app.yml:
+
+    all:
+      melody:
+        facebook:
+          key: my_api_key
+          secret: application_secret
+          callback: @mymodule_facebook
+          scope: [email]                #optionnal - http://developers.facebook.com/docs/authentication/permissions
+          
+        facebook_plus:                  # you can manage more than one config for a service
+          provider: facebook            # to manage permissions for example            
+          key : xxx
+          secret: xxx
+          callback: xxx
+          scope: [email, ...]
+          
+
+
+For example we put a link:
+
+    <?php echo link_to('Connect to facebook', '@mymodule_connect') ?>
+    
+
+In the action.class.php :
+
+    public function executeConnect(sfWebRequest $request)
+    {
+      $this->getUser()->connect('facebook');
+    }
+    
+    public function executeFacebook(sfWebRequest $request)
+    {
+      $this->me = $this->getUser()->getMelody('facebook')->getMe();
+    }
+    
+    
+## User ##
+
+There is many possibilities, you can be authenticated or not. If a user is authenticated, the connected user get automatically the rights
+of the services connected.
+
+If the user is not authenticated, if you have put create_user: true in app.yml, a user is created and automatically logged in.
+
+If you have put: create_user: false. Tokens are store in the session and you can use as the same way all describe before. Tokens are lost
+when the session take end.
+    
+    
+## Api ##
+
+When you call:
+  
+    $this->getUser()->getMelody('facebook')->getMe();
+    
+In fact it's use the default namespace of facebook : https://graph.facebook.com
+
+It call the method sfOAuth->get($action, $aliases, $params, $method = 'GET')
+
+getMe mean get('me')
+
+getMeFriends -> get('me/friends')
+
+
+an aliases is a way to have simpliest call for example :
+
+    $fb_melody->getFriends(array('friends' => 'me/friends'));
+    
+you can put your own aliases in the app.yml to have simplier calls.
+
+## Apis ##
+
+To make api calls, you have to know api for each service provider :
+
+  * Google : http://code.google.com/intl/fr/apis/gdata/docs/directory.html
+  * Facebook: http://developers.facebook.com/docs/reference/api/
+  * Yahoo! : http://developer.yahoo.com/everything.html#apis
+  * ...
+  
+## Register Application ##
+
+ * Google: https://www.google.com/accounts/ManageDomains
+ * Facebook: http://www.facebook.com/developers/apps.php
+ * Yahoo! : https://developer.apps.yahoo.com/projects
+ 
+ 
+## Namespaces ##
+
+To change the namesapce in use just use: 
+  
+    $google_melody->ns('contacts');
+
+ * Facebook
+ 
+    * default : https://graph.facebook.com
+    
+    
+ * Google:
+ 
+    * default: http://www.google.com
+    * analytics: http://www.google.com/analytics/feeds/
+    * google_base: http://www.google.com/base/feeds/
+    * book: http://www.google.com/books/feeds/
+    * blogger: http://www.blogger.com/feeds/
+    * calendar: http://www.google.com/calendar/feeds/
+    * contacts: http://www.google.com/m8/feeds/
+    * chrome: http://www.googleapis.com/auth/chromewebstore.readonly
+    * documents: http://docs.google.com/feeds/
+    * finance: http://finance.google.com/finance/feeds/
+    * gmail: http://mail.google.com/mail/feed/atom
+    * health: http://www.google.com/health/feeds/
+    * h9: http://www.google.com/h9/feeds/
+    * maps: http://maps.google.com/maps/feeds/
+    * moderator: tag:google.com,2010:auth/moderator
+    * open_social: http://www-opensocial.googleusercontent.com/api/people/
+    * orkut: http://www.orkut.com/social/rest
+    * picasa: http://picasaweb.google.com/data/
+    * sidewiki: http://www.google.com/sidewiki/feeds/
+    * sites: http://sites.google.com/feeds/
+    * spreadsheets: http://spreadsheets.google.com/feeds/
+    * wave: http://wave.googleusercontent.com/api/rpc
+    * webmaster_tools: http://www.google.com/webmasters/tools/feeds/
+    * youtube: http://gdata.youtube.com
+
+You can use all this namespace in the api config. To have permissions to use them.
+     
+  * Twitter
+  
+      * default: http://api.twitter.com
+
+  * Yahoo !
+
+      * default:  http://social.yahooapis.com/v1
+      
+   * LinkedIn
+
+      * default:  https://api.linkedin.com/v1
+      
+   * MySpace
+
+      * default:  http://api.myspace.com/v1
+      
+      
+## Aliases ##
+
+There is default aliases :
+
+  * Google
+    
+      * contacts: m8/feeds/contacts
+      * me: default/full
+      
+  * Yahoo !
+    
+      * uid: [userid]
+      * me: user/[userid]
+
+  * LinkedIn
+    
+      * me: people/~
+      
+  * MySpace
+    
+      * me: user.json      
+
+
+## Contribute ##
+
+If you want more providers or more default aliases. Feel free to ask or contribute on Github : http://github.com/chok/sfMelodyPlugin 
+ 
+
+## TODO ##
+
+ * Better management of tokens (refresh, etc...)
+ * ...
