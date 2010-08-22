@@ -1,72 +1,50 @@
 <?php
 class sfGoogleMelody extends sfOAuth1
 {
-  protected $scopes = array();
-  protected static $apis = array('contact' => 'http://www.google.com/m8/feeds/');
+  protected static $apis = array(
+                                  'analytics' => 'http://www.google.com/analytics/feeds/',
+                                  'google_base' => 'http://www.google.com/base/feeds/',
+                                  'book' => 'http://www.google.com/books/feeds/',
+                                  'blogger' => 'http://www.blogger.com/feeds/',
+                                  'calendar' => 'http://www.google.com/calendar/feeds/',
+                                  'contacts' => 'http://www.google.com/m8/feeds/',
+                                  'chrome' => 'http://www.googleapis.com/auth/chromewebstore.readonly',
+                                  'documents' => 'http://docs.google.com/feeds/',
+                                  'finance' => 'http://finance.google.com/finance/feeds/',
+                                  'gmail' => 'http://mail.google.com/mail/feed/atom',
+                                  'health' => 'http://www.google.com/health/feeds/',
+                                  'h9' => 'http://www.google.com/h9/feeds/',
+                                  'maps' => 'http://maps.google.com/maps/feeds/',
+                                  'moderator' => 'tag:google.com,2010:auth/moderator',
+                                  'open_social' => 'http://www-opensocial.googleusercontent.com/api/people/',
+                                  'orkut' => 'http://www.orkut.com/social/rest',
+                                  'picasa' => 'http://picasaweb.google.com/data/',
+                                  'sidewiki' => 'http://www.google.com/sidewiki/feeds/',
+                                  'sites' => 'http://sites.google.com/feeds/',
+                                  'spreadsheets' => 'http://spreadsheets.google.com/feeds/',
+                                  'wave' => 'http://wave.googleusercontent.com/api/rpc',
+                                  'webmaster_tools' => 'http://www.google.com/webmasters/tools/feeds/',
+                                  'youtube' => 'http://gdata.youtube.com'
+                                 );
 
   protected function initialize($config)
   {
-    $this->request_token_url = 'https://www.google.com/accounts/OAuthGetRequestToken';
-    $this->request_auth_url = 'https://www.google.com/accounts/OAuthAuthorizeToken';
-    $this->access_token_url = 'https://www.google.com/accounts/OAuthGetAccessToken';
+    $this->setRequestTokenUrl('https://www.google.com/accounts/OAuthGetRequestToken');
+    $this->setRequestAuthUrl('https://www.google.com/accounts/OAuthAuthorizeToken');
+    $this->setAccessTokenUrl('https://www.google.com/accounts/OAuthGetAccessToken');
 
-    $this->namespaces = array('default' => 'http://www.google.com/m8/feeds');
+    $this->setNamespace('default', 'http://www.google.com');
+    $this->addNamespaces(self::$apis);
+    $this->setCallParameter('alt', 'json');
+    $this->setAlias('contacts', 'm8/feeds/contacts');
+    $this->setAlias('me', 'default/full');
 
-    if(isset($config['api']))
+    if(isset($config['scope']))
     {
-      $this->useApi($config['api']);
+      $this->setRequestParameter('scope', implode(' ', $config['scope']));
     }
-  }
 
-  public function getDefaultParamaters()
-  {
-    return array('alt' => 'json', 'max-results' => 99999999);
-  }
-
-  public function getDefaultUrlParamaters()
-  {
-    return array('me' => 'default/full');
-  }
-
-  public function setScopes($scopes)
-  {
-    $this->scopes = array_unique($scopes);
-
-    $this->mergeScopesWithParameters();
-  }
-
-  public function addScope($scope)
-  {
-    if(!$this->hasScope($scope))
-    {
-      $this->scopes[] = $scope;
-
-      $this->mergeScopesWithParameters();
-    }
-  }
-
-  public function getScopes()
-  {
-    return $this->scopes;
-  }
-
-  public function hasScope($scope)
-  {
-    return array_search($scope, $this->scopes) !== false;
-  }
-
-  public function addScopes($scopes)
-  {
-    $this->scopes = array_unique(array_merge($this->scopes, $scopes));
-
-    $this->mergeScopesWithParameters();
-  }
-
-  protected function mergeScopesWithParameters()
-  {
-    $scope = implode(' ', $this->getScopes());
-
-    $this->setParameter('scope', $scope);
+    $this->init($config, 'api', 'use');
   }
 
   public function useApi($api)
@@ -80,7 +58,19 @@ class sfGoogleMelody extends sfOAuth1
     }
     else
     {
-      $this->addScope($this->getScopeByApiName($api));
+      if(strlen($this->getRequestParameter('scope')) > 0)
+      {
+        $scope = explode(' ', $this->getRequestParameter('scope'));
+      }
+      else
+      {
+        $scope = array();
+      }
+
+      $scope[] = $this->getScopeByApiName($api);
+      $scope = array_unique($scope);
+
+      $this->setRequestParameter('scope', implode(' ', $scope));
     }
   }
 

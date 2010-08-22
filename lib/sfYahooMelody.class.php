@@ -3,50 +3,57 @@ class sfYahooMelody extends sfOAuth1
 {
   protected function initialize($config)
   {
-    $this->request_token_url = 'https://api.login.yahoo.com/oauth/v2/get_request_token';
-    $this->request_auth_url = 'https://api.login.yahoo.com/oauth/v2/request_auth';
-    $this->access_token_url = 'https://api.login.yahoo.com/oauth/v2/get_token';
+    $this->setRequestTokenUrl('https://api.login.yahoo.com/oauth/v2/get_request_token');
+    $this->setRequestAuthUrl('https://api.login.yahoo.com/oauth/v2/request_auth');
+    $this->setAccessTokenUrl('https://api.login.yahoo.com/oauth/v2/get_token');
 
-    $this->namespaces = array('default' => 'http://social.yahooapis.com/v1');
-  }
+    $this->setNamespace('default', 'http://social.yahooapis.com/v1');
 
-  public function getDefaultParamaters()
-  {
-    return array('format' => 'json');
-  }
+    if($this->getToken())
+    {
+      $this->setAliases(array('me' => 'user/'.$this->getToken()->getParam('xoauth_yahoo_guid'),
+                              'uid' => $this->getToken()->getParam('xoauth_yahoo_guid')
+                              )
+                       );
+    }
 
-  public function getDefaultUrlParamaters()
-  {
-    return array('me' => 'user/'.$this->getToken()->getParam('xoauth_yahoo_guid'),
-                 'uid' => $this->getToken()->getParam('xoauth_yahoo_guid')
-                );
+    $this->setCallParameter('format', 'json');
   }
 
   public function getIdentifier()
   {
-    return $this->getToken()->getParam($this->getToken()->getParam('xoauth_yahoo_guid'));
+    return $this->getToken()->getParam('xoauth_yahoo_guid');
   }
 
   protected function setExpire(&$token)
   {
-    $token->setExpire(date('Y-m-d H:i:s', $token->getParam('oauth_authorization_expires_in')));
+    $token->setExpire(time() + $token->getParam('oauth_expires_in'));
   }
 
   public function refreshToken()
   {
-    $this->setParameter('oauth_session_handle', $this->getToken()->getParam('oauth_session_handle'));
+    $this->setAccessParameter('oauth_session_handle', $this->getToken()->getParam('oauth_session_handle'));
 
-    $request = OAuthRequest::from_consumer_and_token($this->getConsumer(), $this->getToken('oauth'), 'POST', $this->getAccessTokenUrl(), $this->getParameters());
+    $request = OAuthRequest::from_consumer_and_token($this->getConsumer(), $this->getToken('oauth'), 'POST', $this->getAccessTokenUrl(), $this->getAccessParameters());
     $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $this->getConsumer(), $this->getToken('oauth'));
 
-    $params = OAuthUtil::parse_parameters($this->call($this->getAccessTokenUrl(), $request));
+    $params = OAuthUtil::parse_parameters($this->call($this->getAccessTokenUrl(), $request->to_postdata()));
+    var_dump($params);die();
+    $oauth_token = isset($params['oauth_token'])?$params['oauth_token']:null;
+    $oauth_token_secret = isset($params['oauth_token_secret'])?$params['oauth_token_secret']:null;
+
+    if(is_null($oauth_token) || is_null($oauth_token_secret))
+    {
+      $error = sprintf('{OAuth} access token failed - %s returns %s', $this->getName(), print_r($params, true));
+      sfContext::getInstance()->getLogger()->err($error);
+    }
 
     $token = new Token();
-    $token->setTokenKey($params['oauth_token']);
-    $token->setTokenSecret($params['oauth_token_secret']);
+    $token->setTokenKey($oauth_token);
+    $token->setTokenSecret($oauth_token_secret);
     $token->setStatus(Token::STATUS_ACCESS);
     $token->setName($this->getName());
-    $token->setOauthVersion($this->getVersion());
+    $token->setOAuthVersion($this->getVersion());
 
     unset($params['oauth_token'], $params['oauth_token_secret']);
     if(count($params) > 0)
@@ -57,6 +64,9 @@ class sfYahooMelody extends sfOAuth1
     $this->setExpire($token);
 
     //override request_token
+    $this->setToken($token);
+
+    $token->setIdentifier($this->getIdentifier());
     $this->setToken($token);
 
     return $token;

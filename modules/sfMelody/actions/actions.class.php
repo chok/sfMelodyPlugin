@@ -4,7 +4,7 @@ class sfMelodyActions extends sfActions
   public function executeAccess(sfWebRequest $request)
   {
     $service = $request->getParameter('service');
-    $token = $this->getUser()->getToken($service, Token::STATUS_REQUEST, true, true);
+    $token = $this->getUser()->getToken($service, Token::STATUS_REQUEST, true);
 
     $oauth = sfMelody::getInstance($service, array('token' => $token));
 
@@ -22,6 +22,7 @@ class sfMelodyActions extends sfActions
     $oauth->setCallback('@melody_access?service='.$service);
 
     $access_token = $oauth->getAccessToken($code);
+
     if($this->getUser()->isAuthenticated())
     {
       $access_token->setUser($this->getUser()->getGuardUser());
@@ -39,7 +40,12 @@ class sfMelodyActions extends sfActions
       }
       else
       {
-        if(sfConfig::get('app_melody_create_user', true) && sfConfig::get('app_melody_'.$service.'_create_user', true))
+        $isset_service_user = !is_null(sfConfig::get('app_melody_'.$service.'_create_user'));
+        $config = sfConfig::get('app_melody_'.$service, array());
+        $service_user = isset($config['create_user'])?$config['create_user']:null;
+        $global_user = sfConfig::get('app_melody_create_user', true);
+
+        if($service_user && $isset_service_user || !$isset_service_user && $global_user)
         {
           $username = sfInflector::classify($service).'_'.$oauth->getIdentifier();
           //create a new user
@@ -58,12 +64,17 @@ class sfMelodyActions extends sfActions
 
     if($this->getUser()->isAuthenticated())
     {
-      $access_token->save();
+      if($access_token->isValidToken())
+      {
+        $access_token->save();
+      }
     }
     else
     {
-      $this->getUser()->setAttribute($service.'_access_token', serialize($access_token));
+      $this->getUser()->setAttribute($service.'_'.Token::STATUS_ACCESS.'_token', serialize($access_token));
     }
+
+    $this->getUser()->removeTokens($service, Token::STATUS_REQUEST, true);
 
     $this->redirect($callback);
   }

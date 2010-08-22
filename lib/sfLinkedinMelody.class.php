@@ -3,8 +3,18 @@ class sfLinkedinMelody extends sfOAuth1
 {
   protected function initialize($config)
   {
-    $this->request_token_url = 'https://api.linkedin.com/uas/oauth/requestToken';
-    $this->request_auth_url = 'https://www.linkedin.com/uas/oauth/authorize';
-    $this->access_token_url = 'https://api.linkedin.com/uas/oauth/accessToken';
+    $this->setRequestTokenUrl('https://api.linkedin.com/uas/oauth/requestToken');
+    $this->setRequestAuthUrl('https://www.linkedin.com/uas/oauth/authorize');
+    $this->setAccessTokenUrl('https://api.linkedin.com/uas/oauth/accessToken');
+
+    $this->setOutputFormat('xml');
+
+    $this->setNamespace('default', 'https://api.linkedin.com/v1');
+    $this->setAlias('me', 'people/~');
+  }
+
+  protected function setExpire(&$token)
+  {
+    $token->setExpire(time() + $token->getParam('oauth_authorization_expires_in'));
   }
 }
