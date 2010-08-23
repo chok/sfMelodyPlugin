@@ -10,7 +10,7 @@ sfMelodyPlugin brings:
 ## Installation ##
 
 
-This plugin require sfDoctrineOAuthPlugin and sfDoctrineGuardPlugin. The propel version is not implemented yet.
+This plugin requires sfDoctrineOAuthPlugin and sfDoctrineGuardPlugin. The propel version is not implemented yet.
 
  * Install
  
@@ -38,7 +38,7 @@ This plugin require sfDoctrineOAuthPlugin and sfDoctrineGuardPlugin. The propel 
 ## Melodies ##
 
 
-At this time sfMelody have 8 melodies :) :
+At this time sfMelody has 8 melodies :) :
 
  * Facebook
  * Google
@@ -53,7 +53,7 @@ At this time sfMelody have 8 melodies :) :
  ## Configuration ##
  
  
-In app.yml, here is all options available :
+Available options in app.yml  :
 
     all:
       melody:
@@ -102,7 +102,7 @@ In an action:
     
     
     
-This action redirect to the callback specified in the app.yml
+This action redirects to the callback specified in the app.yml
 
 
 
@@ -154,13 +154,13 @@ In the action.class.php :
     
 ## User ##
 
-There is many possibilities, you can be authenticated or not. If a user is authenticated, the connected user get automatically the rights
+There are many possibilities, you can be authenticated or not. If a user is authenticated, the connected user get automatically the rights
 of the services connected.
 
 If the user is not authenticated, if you have put create_user: true in app.yml, a user is created and automatically logged in.
 
-If you have put: create_user: false. Tokens are store in the session and you can use as the same way all describe before. Tokens are lost
-when the session take end.
+If you have put: create_user: false. Tokens are stored in the session and you can use as the same way all describe before. Tokens are lost
+when the session ends.
     
     
 ## Api ##
@@ -171,14 +171,14 @@ When you call:
     
 In fact it's use the default namespace of facebook : https://graph.facebook.com
 
-It call the method sfOAuth->get($action, $aliases, $params, $method = 'GET')
+It calls the method sfOAuth->get($action, $aliases, $params, $method = 'GET')
 
-getMe mean get('me')
+getMe means get('me')
 
 getMeFriends -> get('me/friends')
 
 
-an aliases is a way to have simpliest call for example :
+an alias is a way to have simpliest call for example :
 
     $fb_melody->getFriends(array('friends' => 'me/friends'));
     
@@ -238,7 +238,7 @@ To change the namesapce in use just use:
     * webmaster_tools: http://www.google.com/webmasters/tools/feeds/
     * youtube: http://gdata.youtube.com
 
-You can use all this namespace in the api config. To have permissions to use them.
+You can use all these namespaces in the api config to have permissions to use them.
      
   * Twitter
   
@@ -259,7 +259,7 @@ You can use all this namespace in the api config. To have permissions to use the
       
 ## Aliases ##
 
-There is default aliases :
+Default aliases :
 
   * Google
     
