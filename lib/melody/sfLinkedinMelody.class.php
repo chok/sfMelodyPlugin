@@ -1,5 +1,5 @@
 <?php
-class sfLinkedinMelody extends sfOAuth1
+class sfLinkedinMelody extends sfMelody1
 {
   protected function initialize($config)
   {

@@ -1,5 +1,5 @@
 <?php
-class sfFacebookMelody extends sfOAuth2
+class sfFacebookMelody extends sfMelody2
 {
   protected function initialize($config)
   {
@@ -27,6 +27,9 @@ class sfFacebookMelody extends sfOAuth2
 
   protected function setExpire(&$token)
   {
-    $token->setExpire(time() + $token->getParam('expires'));
+    if($token->getParam('expires'))
+    {
+      $token->setExpire(time() + $token->getParam('expires'));
+    }
   }
 }

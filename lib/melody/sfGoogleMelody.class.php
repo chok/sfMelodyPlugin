@@ -1,5 +1,5 @@
 <?php
-class sfGoogleMelody extends sfOAuth1
+class sfGoogleMelody extends sfMelody1
 {
   protected static $apis = array(
                                   'analytics' => 'http://www.google.com/analytics/feeds/',

@@ -1,5 +1,5 @@
 <?php
-class sfYahooMelody extends sfOAuth1
+class sfYahooMelody extends sfMelody1
 {
   protected function initialize($config)
   {

@@ -1,14 +1,47 @@
 <?php
+/**
+ * Actions class for Melody
+ *
+ * @author Maxime Picaud
+ * @since 29 août 2010
+ */
 class sfMelodyActions extends sfActions
 {
+  /**
+   *
+   * @param sfWebRequest $request
+   *
+   * Store access token and manage user
+   *
+   * @author Maxime Picaud
+   * @since 29 août 2010
+   */
   public function executeAccess(sfWebRequest $request)
   {
     $service = $request->getParameter('service');
-    $token = $this->getUser()->getToken($service, Token::STATUS_REQUEST, true);
+    $request_token = $this->getUser()->getToken($service, Token::STATUS_REQUEST, true);
 
-    $oauth = sfMelody::getInstance($service, array('token' => $token));
+    $melody = sfMelody::getInstance($service, array('token' => $request_token));
 
-    if($oauth->getVersion() == 1)
+    list($access_token, $callback) = $this->getAccessToken($melody);
+
+    $this->manageToken($access_token);
+
+    $this->redirect($callback);
+  }
+
+  /**
+   *
+   * @param sfMelody(1|2) $melody
+   *
+   * get Access code according OAuth version
+   *
+   * @author Maxime Picaud
+   * @since 29 août 2010
+   */
+  protected function getCode($melody)
+  {
+    if($melody->getVersion() == 1)
     {
       $code = $request->getParameter('oauth_verifier');
     }
@@ -17,18 +50,71 @@ class sfMelodyActions extends sfActions
       $code = $request->getParameter('code');
     }
 
-    $callback = $oauth->getCallback();
-    //for oauth 2 the same redirect_uri
-    $oauth->setCallback('@melody_access?service='.$service);
+    return $code;
+  }
 
-    $access_token = $oauth->getAccessToken($code);
+  /**
+   *
+   * @param sfMelody(1|2) $melody
+   *
+   * Step to get access token
+   *
+   * @return array(access_token, callback)
+   *
+   * @author Maxime Picaud
+   * @since 29 août 2010
+   */
+  protected function getAccessToken($melody)
+  {
+    $callback = $melody->getCallback();
+
+    //for oauth 2 the same redirect_uri
+    $melody->setCallback('@melody_access?service='.$melody->getName());
+
+    $access_token = $melody->getAccessToken($this->getCode($melody));
+
+    return array($access_token, $callback);
+  }
+
+  /**
+   *
+   * @param Token $token
+   *
+   * Create and/or signin user
+   *
+   * @author Maxime Picaud
+   * @since 29 août 2010
+   */
+  protected function manageToken($token)
+  {
+    $melody->setToken($token);
+
+    $user = $melody->getGuardAdapter()->find();
 
     if($this->getUser()->isAuthenticated())
     {
-      $access_token->setUser($this->getUser()->getGuardUser());
+      if($user->getId() == $this->getUser()->getGuardUser()->getId())
+      {
+        //yeah !
+      }
+      else
+      {
+        // WTF ?!
+      }
+    }
+    if($user)
+    {
+      $token->setUserId($user->getId());
+
+      $this->getUser()->signin($user, sfConfig::get('app_melody_remember_user', true));
+    }
+    if($this->getUser()->isAuthenticated())
+    {
+      $access_token->setUserId($this->getUser()->getGuardUser()->getId());
     }
     else
     {
+
       //we looking for an existing token
       $old_token = sfMelody::execute('findOneByNameAndIdentifier', array($service, $oauth->getIdentifier()));
 
@@ -40,24 +126,14 @@ class sfMelodyActions extends sfActions
       }
       else
       {
-        $isset_service_user = !is_null(sfConfig::get('app_melody_'.$service.'_create_user'));
-        $config = sfConfig::get('app_melody_'.$service, array());
-        $service_user = isset($config['create_user'])?$config['create_user']:null;
-        $global_user = sfConfig::get('app_melody_create_user', true);
+        $user = $melody->createUser();
 
-        if($service_user && $isset_service_user || !$isset_service_user && $global_user)
+        if(!is_null($user))
         {
-          $username = sfInflector::classify($service).'_'.$oauth->getIdentifier();
-          //create a new user
-          $user = new sfGuardUser();
-          $user->setUsername($username);
-
-          $user->save();
-
-          $access_token->setUser($user);
+          $access_token->setUserId($user);
 
           //logged in the new user
-          $this->getUser()->signin($user, sfConfig::get('app_melody_remember_user', true));
+
         }
       }
     }
@@ -75,7 +151,5 @@ class sfMelodyActions extends sfActions
     }
 
     $this->getUser()->removeTokens($service, Token::STATUS_REQUEST, true);
-
-    $this->redirect($callback);
   }
 }

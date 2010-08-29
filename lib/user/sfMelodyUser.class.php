@@ -24,16 +24,14 @@ class sfMelodyUser extends sfGuardSecurityUser
    */
   public function connect($service, $force = false)
   {
-    $oauth = sfMelody::getInstance($service);
+    $melody = sfMelody::getInstance($service);
 
     if(!$this->isConnected($service) || $force)
     {
-      $this->removeTokens($service, Token::STATUS_REQUEST);
-      $this->removeTokens($service, Token::STATUS_ACCESS);
+      $this->removeTokens($service);
 
-      $this->setAttribute('callback_'.$service, $oauth->getCallback());
-      $oauth->setCallback('@melody_access?service='.$service);
-      $oauth->connect($this);
+      $melody->setCallback('@melody_access?service='.$service);
+      $melody->connect($this);
     }
     else
     {
@@ -73,7 +71,7 @@ class sfMelodyUser extends sfGuardSecurityUser
   public function getToken($service, $status = Token::STATUS_ACCESS, $in_sesssion = false, $remove_in_session = false)
   {
     $tokens = $this->getTokens();
-    if(is_array($tokens) && count($tokens) > 0 && !$in_sesssion)
+    if(is_array($tokens) && count($tokens) > 0)
     {
       if(!is_null($status))
       {
@@ -81,7 +79,7 @@ class sfMelodyUser extends sfGuardSecurityUser
       }
       else
       {
-        foreach(sfMelody::getTokenStatuses() as $status)
+        foreach(Token::getAllStatuses() as $status)
         {
           if(isset($tokens[$status][$service]))
           {
@@ -92,10 +90,8 @@ class sfMelodyUser extends sfGuardSecurityUser
 
       return null;
     }
-    else
-    {
-      return $this->getSessionToken($service, $status, $remove_in_session);
-    }
+
+    return null;
   }
 
   /**
@@ -109,14 +105,9 @@ class sfMelodyUser extends sfGuardSecurityUser
    * @author Maxime Picaud
    * @since 21 août 2010
    */
-  protected function getSessionToken($service, $status, $remove = false)
+  protected function getSessionToken($service, $status = null)
   {
     $token = $this->getAttribute($service.'_'.$status.'_token');
-
-    if($remove && $token)
-    {
-      $this->removeTokens($service, $status);
-    }
 
     if($token)
     {
@@ -141,12 +132,10 @@ class sfMelodyUser extends sfGuardSecurityUser
    */
   public function getTokens()
   {
-
-    if(is_null($this->tokens) && $this->isAuthenticated())
+    if(is_null($this->tokens))
     {
-      $callable = array(sfMelody::getTokenOperationByOrm(), 'findByUserId');
-
-      $tokens = call_user_func($callable, $this->getGuardUser()->getId());
+      $tokens = $this->getOrmAdapter('Token')->findByUserId($this->getGuardUser()->getId());;
+      $tokens = array_merge($this->getSessionTokens(), $tokens);
 
       $this->tokens = array();
       foreach($tokens as $token)
@@ -178,7 +167,7 @@ class sfMelodyUser extends sfGuardSecurityUser
 
     if($this->isAuthenticated() && !$in_session)
     {
-      sfMelody::deleteTokens($service, $this->getGuardUser(), $status);
+      $this->getOrmAdapter('Token')->deleteTokens($service, $this->getGuardUser(), $status);
     }
   }
 
@@ -208,5 +197,10 @@ class sfMelodyUser extends sfGuardSecurityUser
     $config = array_merge(array('token' => $token), $config);
 
     return sfMelody::getInstance($service, $config);
+  }
+
+  protected function getOrmAdapter($model)
+  {
+    return sfMelodyOrmAdapter::getInstance($model);
   }
 }
