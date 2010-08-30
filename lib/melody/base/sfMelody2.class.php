@@ -20,4 +20,9 @@ class sfMelody2 extends sfOAuth2
   {
     $this->user_factory = $user_factory;
   }
+
+  public function connect($user, $auth_parameters = array())
+  {
+    $this->requestAuth($auth_parameters);
+  }
 }
