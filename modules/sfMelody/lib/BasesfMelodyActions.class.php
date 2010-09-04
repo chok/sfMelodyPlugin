@@ -2,7 +2,7 @@
 /**
  * Actions class for Melody
  *
- * @author Maxime Picaud
+ * @author Gordon Franke <info@nevalon.de>
  * @since 29 août 2010
  */
 class BasesfMelodyActions extends sfMelodyBaseActions
