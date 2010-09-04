@@ -39,6 +39,10 @@ class sfMelodyUser extends sfGuardSecurityUser
     }
   }
 
+  /**
+   * (non-PHPdoc)
+   * @see plugins/sfDoctrineGuardPlugin/lib/user/sfGuardSecurityUser::signIn()
+   */
   public function signIn($user, $remember = false, $con = null)
   {
     parent::signIn($user, $remember, $con);
@@ -46,6 +50,10 @@ class sfMelodyUser extends sfGuardSecurityUser
     $this->refreshTokens();
   }
 
+  /**
+   * (non-PHPdoc)
+   * @see plugins/sfDoctrineGuardPlugin/lib/user/sfGuardSecurityUser::signOut()
+   */
   public function signOut()
   {
     $this->getAttributeHolder()->removeNamespace('Melody');

@@ -8,7 +8,7 @@
  * @author Maxime Picaud
  * @since 31 août 2010
  */
-class BasesfMelodyActions extends sfActions
+class sfMelodyBaseActions extends sfActions
 {
   /**
    * callback is the original callback
