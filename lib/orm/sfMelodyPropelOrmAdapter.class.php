@@ -12,25 +12,29 @@ class sfMelodyPropelOrmAdapter extends sfMelodyOrmAdapter
     $this->checkModels('sfGuardUser', 'findByMelody');
 
     $c = new Criteria();
-    $q = Doctrine::getTable('sfGuardUser')
-         ->createQuery('u')
-         ->limit(1);
 
     $user_factory = $melody->getUserFactory();
     $config = $user_factory->getConfig();
     $user = $user_factory->getUser();
     $keys = $user_factory->getKeys();
 
-   /*foreach($keys as $key)
+    foreach($keys as $key)
     {
-
-      $c->add()
+      $constant_key = strtoupper($key);
       $method = 'get'.sfInflector::classify($key);
-      if(is_callable(array($user, $method)))
+
+      $reflection = new ReflectionClass('sfGuardUserPeer');
+
+      if($reflection->hasConstant($constant_key) && is_callable(array($user, $method)))
       {
-        $q->addWhere('u.'.$key.' = ?', $user->$method());
+        $constant = $reflection->getConstants($constant_key);
+        $c->add($constant, $user->$method());
       }
-    }*/
+      else
+      {
+        throw new sfException(sprintf('sfGuardUser doesn\'t have field "%s"', $key));
+      }
+    }
 
     return sfGuardUserPeer::doSelectOne($c);
   }
