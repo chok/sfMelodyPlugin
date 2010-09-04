@@ -39,6 +39,13 @@ class sfMelodyUser extends sfGuardSecurityUser
     }
   }
 
+  public function signIn($user, $remember = false, $con = null)
+  {
+    parent::signIn($user, $remember, $con);
+
+    $this->refreshTokens();
+  }
+
   public function signOut()
   {
     $this->getAttributeHolder()->removeNamespace('Melody');
@@ -199,6 +206,20 @@ class sfMelodyUser extends sfGuardSecurityUser
     }
 
     return $this->tokens;
+  }
+
+  /**
+   *
+   *
+   *
+   * set null tokens to get tokens again
+   *
+   * @author Maxime Picaud
+   * @since 4 sept. 2010
+   */
+  public function refreshTokens()
+  {
+    $this->tokens = null;
   }
 
   /**
