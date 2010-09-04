@@ -29,10 +29,10 @@ class sfMelodyActions extends BasesfMelodyActions
 
     if($this->getUser()->isAuthenticated())
     {
-      $user = $this->getGuardUser();
+      $user = $this->getUser()->getGuardUser();
 
       $conflict = !$melody->getUserFactory()->isCompatible($user);
-      new sfEvent($this, 'melody.filter_user', array('melody' => $melody, 'conflict' => $conflict));
+      $event = new sfEvent($this, 'melody.filter_user', array('melody' => $melody, 'conflict' => $conflict));
       $dispatcher = $this->getContext()->getEventDispatcher();
       $user = $dispatcher->filter($event, $user)->getReturnValue();
     }
