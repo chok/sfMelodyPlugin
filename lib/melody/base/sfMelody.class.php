@@ -35,4 +35,19 @@ class sfMelody
 
     return $melody;
   }
+
+  public static function getAllServices()
+  {
+    $services = array();
+    foreach(sfConfig::getAll() as $key => $value)
+    {
+      $params = explode('_', $key);
+      if(in_array('melody', $params))
+      {
+        $services[] = substr($key, 11);
+      }
+    }
+
+    return $services;
+  }
 }

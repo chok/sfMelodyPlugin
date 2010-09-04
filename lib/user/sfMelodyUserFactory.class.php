@@ -8,6 +8,7 @@ class sfMelodyUserFactory
   public function __construct($service, $config = array())
   {
     $this->setConfig($config);
+    $this->setService($service);
   }
 
   public function setConfig($config)
@@ -34,7 +35,7 @@ class sfMelodyUserFactory
   {
     if(is_null($this->user) || $refresh)
     {
-      $this->createUser($save);
+      $this->user = $this->createUser($save);
     }
 
     return $this->user;
@@ -42,9 +43,10 @@ class sfMelodyUserFactory
 
   protected function createUser($save = false)
   {
-    $user_class = sfConfig::get('app_melody_user_class', 'sfGuardUser');
+    // maybe later :)
+    //$user_class = sfConfig::get('app_melody_user_class', 'sfGuardUser');
 
-    $user = new $user_class();
+    $user = new sfGuardUser();
 
     $config = $this->getConfig();
 
@@ -52,19 +54,20 @@ class sfMelodyUserFactory
 
     foreach($config as $field => $field_config)
     {
+
       list($call, $call_parameters, $path, $prefix, $suffix) = $this->explodeConfig($field_config);
 
       if(!is_null($call))
       {
-        $result = $this->getService()->call($call, $call_parameters);
+        $result = $this->getService()->get($call, $call_parameters);
         $result = $this->getService()->fromPath($result, $path);
 
         if($result)
         {
           $result = $prefix.$result.$suffix;
-          $method = 'set'.sfInflector::camelize('_'.$field);
+          $method = 'set'.sfInflector::classify($field);
 
-          if(method_exists($user, $method))
+          if(is_callable(array($user, $method)))
           {
             $user->$method($result);
             $modified = true;
@@ -91,17 +94,62 @@ class sfMelodyUserFactory
 
     if(is_array($config))
     {
-      $call = isset($field_config['call'])?$field_config['call']:null;
-      $call_parameters = isset($field_config['call_parameters'])?$field_config['call_parameters']:null;
-      $path = isset($field_config['path'])?$field_config['path']:null;
-      $prefix = isset($field_config['prefix'])?$field_config['prefix']:null;
-      $suffix = isset($field_config['suffix'])?$field_config['suffix']:null;
+      $call = isset($config['call'])?$config['call']:null;
+      $call_parameters = isset($config['call_parameters'])?$config['call_parameters']:null;
+      $path = isset($config['path'])?$config['path']:null;
+      $prefix = isset($config['prefix'])?$config['prefix']:null;
+      $suffix = isset($config['suffix'])?$config['suffix']:null;
     }
     else
     {
-
+      $call = $config;
     }
 
     return array($call, $call_parameters, $path, $prefix, $suffix);
+  }
+
+  public function getKeys()
+  {
+    $keys = array();
+    foreach($this->getConfig() as $field => $field_condig)
+    {
+      if(isset($field_condig['key']) && $field_condig['key'])
+      {
+        $keys[] = $field;
+      }
+    }
+
+    if(count($keys) == 0)
+    {
+      $keys = array_keys($this->getConfig());
+    }
+
+    return $keys;
+  }
+
+  public function isCompatible($user)
+  {
+    $melody_user = $this->getUser();
+
+    $compatible = true;
+    foreach($this->getKeys() as $key)
+    {
+      $method = 'get'.sfInflector::classify($key);
+
+      if(is_callable(array($user, $method)))
+      {
+        if($user->$method() != $melody_user->$method())
+        {
+          $compatible = false;
+          break;
+        }
+      }
+      else
+      {
+        throw new sfException(sprintf('"%s" don\'t have field "%s"', get_class($user, $key)));
+      }
+    }
+
+    return $compatible;
   }
 }

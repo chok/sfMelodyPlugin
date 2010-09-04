@@ -5,7 +5,7 @@
  * @author Maxime Picaud
  * @since 29 août 2010
  */
-class sfMelodyActions extends sfActions
+class sfMelodyActions extends BasesfMelodyActions
 {
   /**
    *
@@ -18,138 +18,76 @@ class sfMelodyActions extends sfActions
    */
   public function executeAccess(sfWebRequest $request)
   {
-    $service = $request->getParameter('service');
-    $request_token = $this->getUser()->getToken($service, Token::STATUS_REQUEST, true);
+    $melody = $this->getMelody();
 
-    $melody = sfMelody::getInstance($service, array('token' => $request_token));
-
-    list($access_token, $callback) = $this->getAccessToken($melody);
-
-    $this->manageToken($access_token);
-
-    $this->redirect($callback);
-  }
-
-  /**
-   *
-   * @param sfMelody(1|2) $melody
-   *
-   * get Access code according OAuth version
-   *
-   * @author Maxime Picaud
-   * @since 29 août 2010
-   */
-  protected function getCode($melody)
-  {
-    if($melody->getVersion() == 1)
-    {
-      $code = $request->getParameter('oauth_verifier');
-    }
-    else
-    {
-      $code = $request->getParameter('code');
-    }
-
-    return $code;
-  }
-
-  /**
-   *
-   * @param sfMelody(1|2) $melody
-   *
-   * Step to get access token
-   *
-   * @return array(access_token, callback)
-   *
-   * @author Maxime Picaud
-   * @since 29 août 2010
-   */
-  protected function getAccessToken($melody)
-  {
-    $callback = $melody->getCallback();
-
-    //for oauth 2 the same redirect_uri
     $melody->setCallback('@melody_access?service='.$melody->getName());
+    $access_token = $melody->getAccessToken($this->getCode());
 
-    $access_token = $melody->getAccessToken($this->getCode($melody));
+    $melody->setToken($access_token);
 
-    return array($access_token, $callback);
-  }
-
-  /**
-   *
-   * @param Token $token
-   *
-   * Create and/or signin user
-   *
-   * @author Maxime Picaud
-   * @since 29 août 2010
-   */
-  protected function manageToken($token)
-  {
-    $melody->setToken($token);
-
-    $user = $melody->getGuardAdapter()->find();
+    $user = null;
 
     if($this->getUser()->isAuthenticated())
     {
-      if($user->getId() == $this->getUser()->getGuardUser()->getId())
-      {
-        //yeah !
-      }
-      else
-      {
-        // WTF ?!
-      }
-    }
-    if($user)
-    {
-      $token->setUserId($user->getId());
+      $user = $this->getGuardUser();
 
-      $this->getUser()->signin($user, sfConfig::get('app_melody_remember_user', true));
-    }
-    if($this->getUser()->isAuthenticated())
-    {
-      $access_token->setUserId($this->getUser()->getGuardUser()->getId());
+      $conflict = !$melody->getUserFactory()->isCompatible($user);
+      new sfEvent($this, 'melody.filter_user', array('melody' => $melody, 'conflict' => $conflict));
+      $dispatcher = $this->getContext()->getEventDispatcher();
+      $user = $dispatcher->filter($event, $user)->getReturnValue();
     }
     else
     {
+      $old_token = $this->getOrmAdapter('Token')->findOneByNameAndIdentifier($melody->getName(), $melody->getIdentifier());
 
-      //we looking for an existing token
-      $old_token = sfMelody::execute('findOneByNameAndIdentifier', array($service, $oauth->getIdentifier()));
-
+      //try to get user from the token
       if($old_token)
       {
-        $access_token->setUserId($old_token->getUserId());
-
-        $old_token->delete();
+        $user = $old_token->getUser();
       }
-      else
+
+      //try to get user by melody
+      if(!$user)
       {
-        $user = $melody->createUser();
+        $user = $this->getGuardAdapter()->findByMelody($melody);
+      }
 
-        if(!is_null($user))
+      $create_user = sfConfig::get('app_melody_create_user', false);
+      $redirect_register = sfConfig::get('app_melody_redirect_register', false);
+
+      $create_user = $melody->getConfigParameter('create_user', $create_user);
+      $redirect_register = $melody->getConfigParameter('redirect_register', $redirect_register);
+
+      //create a new user if needed
+      if(!$user && ( $create_user || $redirect_register))
+      {
+        $user = $melody->getUser();
+        if($redirect_register)
         {
-          $access_token->setUserId($user);
+          $this->getUser()->setAttribute('melody_user', serialize($user));
+          $this->getUser()->setAttribute('melody', serialize($melody));
 
-          //logged in the new user
-
+          $this->redirect($redirect_register);
+        }
+        else
+        {
+          $user->save();
         }
       }
     }
 
-    if($this->getUser()->isAuthenticated())
+    if($user)
     {
-      if($access_token->isValidToken())
+      $access_token->setUserId($user->getId());
+
+      if(!$this->getUser()->isAuthenticated())
       {
-        $access_token->save();
+        $this->getUser()->signin($user, sfConfig::get('app_melody_remember_user', true));
       }
     }
-    else
-    {
-      $this->getUser()->setAttribute($service.'_'.Token::STATUS_ACCESS.'_token', serialize($access_token));
-    }
 
-    $this->getUser()->removeTokens($service, Token::STATUS_REQUEST, true);
+    $this->getUser()->addToken($access_token);
+
+    $this->redirect($this->getCallback());
   }
 }

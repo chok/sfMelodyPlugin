@@ -8,9 +8,9 @@ class sfMelody2 extends sfOAuth2
     if(is_null($this->user_factory))
     {
       $config = $this->getConfig();
-      $link_config = isset($config['link'])?$config['link']:array();
+      $user_config = isset($config['user'])?$config['user']:array();
 
-      $this->user_factory = new sfMelodyUserFactory($link_config);
+      $this->user_factory = new sfMelodyUserFactory($this, $link_config);
     }
 
     return $this->user_factory;
@@ -21,7 +21,12 @@ class sfMelody2 extends sfOAuth2
     $this->user_factory = $user_factory;
   }
 
-  public function connect($user, $auth_parameters = array())
+  public function getUser()
+  {
+    return $this->getUserFactory()->getUser();
+  }
+
+  public function connect($user, $auth_parameters = array(), $request_params = array())
   {
     $this->requestAuth($auth_parameters);
   }

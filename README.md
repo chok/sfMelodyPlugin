@@ -9,8 +9,16 @@ sfMelodyPlugin brings:
  
 ## Installation ##
 
+For Doctrine, install:
 
-This plugin requires sfDoctrineOAuthPlugin and sfDoctrineGuardPlugin. The propel version is not implemented yet.
+  * [sfDoctrineOAuthPlugin](http://github.com/chok/sfDoctrineOAuthPlugin)
+  * [sfDoctrineGuardPlugin](http://github.com/chok/sfDoctrineGuardPlugin)
+  
+For Propel:
+
+  * [sfDoctrineOAuthPlugin](http://github.com/chok/sfPropelOAuthPlugin)
+  * [sfDoctrinePlugin](http://github.com/chok/sfGuardPlugin)
+
 
  * Install
  
@@ -32,8 +40,6 @@ This plugin requires sfDoctrineOAuthPlugin and sfDoctrineGuardPlugin. The propel
  * Override the user in apps/my-app/lib/myUser.class.php:
  
         class myUser extends sfMelodyUser
-        
- * Rebuild model and db because there is a new model class 'Token'
  
 ## Melodies ##
 
@@ -57,7 +63,9 @@ Available options in app.yml  :
 
     all:
       melody:
-        create_user: true             # create a new user if not logged when you connect to a service
+        create_user: false            # create a new user if not logged when you connect to a service
+        register_redirect: false      # you can redirect to a register form or anything else by specify
+                                      # a valid route like "@user_register" 
         name:
           key:  my_service_key
           secret: my_secret_key
@@ -68,6 +76,16 @@ Available options in app.yml  :
           scope: [permission_1, ...]  # for google and facebook to set permissions - for google prefere api parameter
           
           #optional
+          user:                       # to create an user
+            field_1:
+              call: xx
+              call_parameters: [x, x, x]
+              path: xx.xy.zz
+              prefix: xx_
+              suffix: _xx
+              key: false
+            ...
+            
           provider: provider          #like google, facebook -optional if 'name' config key is the name of the provider
           request_token_url: url      # override the url - for OAuth 1 implementation only
           request_auth_url: url
@@ -85,7 +103,8 @@ Available options in app.yml  :
           access_parameters:
             param1: value
           output_format: json
-          create_user: true
+          create_user: true      
+          redirect_register: false
           
           #optional only for OAuth 1
           request_parameters:
@@ -98,8 +117,6 @@ Available options in app.yml  :
 In an action:
 
     $this->getUser()->connect('name');
-    
-    
     
     
 This action redirects to the callback specified in the app.yml
@@ -119,18 +136,35 @@ Then put the config in app.yml:
 
     all:
       melody:
+        create_user: true               # to create a user for all melodies 
         facebook:
           key: my_api_key
           secret: application_secret
           callback: @mymodule_facebook
           scope: [email]                #optionnal - http://developers.facebook.com/docs/authentication/permissions
+                                        # needed to create an user based on his email_address
+          user:
+            username:                   # the name of a field of sfGuardUser
+              call: me                  # api call
+              path: id                  # path could be user.object.email for example to retrieve the right inforamtion
+              prefix: Facebook_
+            first_name:
+              call: me
+              path: first_name
+            last_name: 
+              call: me
+              path: last_name
+            email_adress:               
+              call: me                  
+              path: email               
+              key: true                 # it's a key to retrieve user from other services based on this information
+                                        # if no field is a key all are keys by default.        
           
         facebook_plus:                  # you can manage more than one config for a service
           provider: facebook            # to manage permissions for example            
-          key : xxx
-          secret: xxx
-          callback: xxx
-          scope: [email, ...]
+          ...
+        google:
+          ...
           
 
 
@@ -154,13 +188,36 @@ In the action.class.php :
     
 ## User ##
 
-There are many possibilities, you can be authenticated or not. If a user is authenticated, the connected user get automatically the rights
-of the services connected.
+The user creation is a security point because for example if you create user based on email addresses. If a user create 
+an account by a classic way and if the email specified is not validated he can retrieve rights on the user which have the email.
 
-If the user is not authenticated, if you have put create_user: true in app.yml, a user is created and automatically logged in.
+So you have to specified the user creation by put some informations in the config file (app.yml).
 
-If you have put: create_user: false. Tokens are stored in the session and you can use as the same way all describe before. Tokens are lost
-when the session ends.
+The informations under the user key in config allow to create a user with theses informations. The keys (key:true) allow to retrieve 
+existing user to make links between services or to signin a user according his created account.
+
+### How it's works : ###
+
+If an user is authenticated and request acces to a service. The rights are attached to him. 
+
+There is an event (melody.filter_user) to filter an user if auticanted. This event has params melody and conflict. 
+melody is the current melody and conflict represents if the user match the key rules (app.yml). So in this filter you can change the user
+or do anything you want in this situation.
+ 
+
+If the user is not authenticated, it try to retrieve the user by the token then it try to retrieve the user by the keys(config). 
+And then create the user if needeed.
+
+Before saving the user, if you specify redirect_register with a valid routing rule, you can redirect the workflow to your action.
+
+In this case, you can retrieve the user created but not saved :
+
+  * unserialize($this->getUser()->getAttribute('melody_user'))
+  
+And the melody :
+
+  * unserialize($this->getUser()->getAttribute('melody'))
+
     
     
 ## Api ##

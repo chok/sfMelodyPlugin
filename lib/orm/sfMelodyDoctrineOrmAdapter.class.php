@@ -7,29 +7,28 @@
  */
 class sfMelodyDoctrineOrmAdapter extends sfMelodyOrmAdapter
 {
-  public function retrieveOrCreateByMelody($melody)
+  public function findByMelody($melody)
   {
-    $this->checkModels('sfGuardUser', 'retrieveOrCreateByMelody');
+    $this->checkModels('sfGuardUser', 'findByMelody');
 
     $q = Doctrine::getTable('sfGuardUser')
          ->createQuery('u')
          ->limit(1);
 
     $user_factory = $melody->getUserFactory();
-
     $config = $user_factory->getConfig();
     $user = $user_factory->getUser();
+    $keys = $user_factory->getKeys();
 
-    foreach($config as $field => $field_config)
+    foreach($keys as $key)
     {
-      $method = 'get'.sfInflector::camelize('_'.$field);
+      $method = 'get'.sfInflector::classify($key);
       if(is_callable(array($user, $method)))
       {
-        $q->addWhere('u.'.$field.' = ?', $user->$method());
+        $q->addWhere('u.'.$key.' = ?', $user->$method());
       }
     }
 
-
-
+    return $q->fetchOne();
   }
 }

@@ -40,11 +40,11 @@ class sfMelodyOrmAdapter
   {
     if(class_exists('Doctrine'))
     {
-      return new sfMelodyDoctrineOrm($model);
+      return new sfMelodyDoctrineOrmAdapter($model);
     }
     else
     {
-      return new sfMelodyPropelOrm($model);
+      return new sfMelodyPropelOrmAdapter($model);
     }
   }
 

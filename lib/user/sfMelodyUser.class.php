@@ -35,8 +35,13 @@ class sfMelodyUser extends sfGuardSecurityUser
     }
     else
     {
-      $oauth->getController()->redirect($oauth->getCallback());
+      $oauth->getController()->redirect($melody->getCallback());
     }
+  }
+
+  public function signOut()
+  {
+    $this->getAttributeHolder()->removeNamespace('Melody');
   }
 
   /**
@@ -57,6 +62,30 @@ class sfMelodyUser extends sfGuardSecurityUser
     return !is_null($token) && $token->isValidToken();
   }
 
+  public function addToken($token)
+  {
+    $service = $token->getName();
+    $status = $token->getStatus();
+
+    $tokens = $this->getTokens();
+
+    if(isset($tokens[$status][$service]))
+    {
+      $this->removeTokens($service, $status);
+    }
+
+    if($status == Token::STATUS_REQUEST || is_null($token->getUserId()))
+    {
+      $this->setAttribute($service.'_'.$status.'_token', serialize($token), 'Melody');
+    }
+    else
+    {
+      $token->save();
+    }
+
+    $this->tokens[$status][$service] = $token;
+  }
+
   /**
    *
    * @param string $service
@@ -71,8 +100,8 @@ class sfMelodyUser extends sfGuardSecurityUser
   public function getToken($service, $status = Token::STATUS_ACCESS)
   {
     $token = null;
-
-    if(count($this->getTokens()) > 0)
+    $tokens = $this->getTokens();
+    if(count($tokens) > 0)
     {
       if(!is_null($status))
       {
@@ -105,16 +134,28 @@ class sfMelodyUser extends sfGuardSecurityUser
    * @author Maxime Picaud
    * @since 21 août 2010
    */
-  protected function getSessionTokens($service)
+  protected function getSessionTokens($service = null)
   {
+    if(is_null($service))
+    {
+      $services = sfMelody::getAllServices();
+    }
+    else
+    {
+      $services = array($service);
+    }
+
     $tokens = array();
 
-    foreach(Token::getAllStatuses() as $status)
+    foreach($services as $service)
     {
-      $token = $this->getAttribute($service.'_'.$status.'_token');
-      if($token)
+      foreach(Token::getAllStatuses() as $status)
       {
-        $tokens[$status][$service] = unserialize($token);
+        $token = $this->getAttribute($service.'_'.$status.'_token', null, 'Melody');
+        if($token)
+        {
+          $tokens[$status][$service] = unserialize($token);
+        }
       }
     }
 
@@ -123,12 +164,16 @@ class sfMelodyUser extends sfGuardSecurityUser
 
   protected function getDbTokens()
   {
-    $db_tokens = $this->getOrmAdapter('Token')->findByUserId($this->getGuardUser()->getId());
-
     $tokens = array();
-    foreach($db_tokens as $token)
+
+    if($this->isAuthenticated())
     {
-      $tokens[$token->getStatus()][$token->getName()] = $token;
+      $db_tokens = $this->getOrmAdapter('Token')->findByUserId($this->getGuardUser()->getId());
+
+      foreach($db_tokens as $token)
+      {
+        $tokens[$token->getStatus()][$token->getName()] = $token;
+      }
     }
 
     return $tokens;
@@ -167,22 +212,6 @@ class sfMelodyUser extends sfGuardSecurityUser
    */
   public function removeTokens($service, $status = null)
   {
-    $this->removeTokensRecursive($service, $status);
-  }
-
-  /**
-   *
-   * @param string $service
-   * @param string $status
-   * @param boolean $remove_from_db
-   *
-   * To hide recursive parameter $remove_from_db
-   *
-   * @author Maxime Picaud
-   * @since 29 août 2010
-   */
-  protected function removeTokensRecursive($service, $status = null, $remove_from_db = true)
-  {
     if(is_null($status))
     {
       if($this->isAuthenticated())
@@ -190,24 +219,22 @@ class sfMelodyUser extends sfGuardSecurityUser
         $this->getOrmAdapter('Token')->deleteTokens($service, $this->getGuardUser(), $status);
       }
 
-      foreach(Token::getAllStatuses() as $status)
-      {
-        $this->removeTokens($service, $status, false);
-      }
+      $this->getAttributeHolder()->removeNamespace('Melody');
     }
     else
     {
-      if($this->hasAttribute($service.'_'.$status.'_token'))
+      if($this->hasAttribute($service.'_'.$status.'_token', 'Melody'))
       {
-        $this->getAttributeHolde()->remove($service.'_'.$status.'_token');
+        $this->getAttributeHolde()->remove($service.'_'.$status.'_token', 'Melody');
       }
 
-      if($remove_from_db && $this->isAuthenticated())
+      if($this->isAuthenticated())
       {
         $this->getOrmAdapter('Token')->deleteTokens($service, $this->getGuardUser(), $status);
       }
     }
   }
+
 
   /**
    *
@@ -223,7 +250,6 @@ class sfMelodyUser extends sfGuardSecurityUser
   public function getMelody($service, $config = array())
   {
     $token = $this->getToken($service);
-
     $config = array_merge(array('token' => $token), $config);
 
     return sfMelody::getInstance($service, $config);
