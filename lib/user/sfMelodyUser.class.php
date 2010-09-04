@@ -35,13 +35,14 @@ class sfMelodyUser extends sfGuardSecurityUser
     }
     else
     {
-      $oauth->getController()->redirect($melody->getCallback());
+      $melody->getController()->redirect($melody->getCallback());
     }
   }
 
   public function signOut()
   {
     $this->getAttributeHolder()->removeNamespace('Melody');
+    parent::signOut();
   }
 
   /**
