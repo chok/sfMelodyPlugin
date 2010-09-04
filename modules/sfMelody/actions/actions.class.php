@@ -1,4 +1,6 @@
 <?php
+require_once(dirname(__FILE__).'/../lib/BasesfMelodyActions.class.php');
+
 /**
  * Actions class for Melody
  *
