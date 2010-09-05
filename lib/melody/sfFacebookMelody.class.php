@@ -3,8 +3,6 @@ class sfFacebookMelody extends sfMelody2
 {
   protected function initialize($config)
   {
-    parent::initialize($config);
-
     $this->setRequestAuthUrl('https://graph.facebook.com/oauth/authorize');
     $this->setAccessTokenUrl('https://graph.facebook.com/oauth/access_token');
 

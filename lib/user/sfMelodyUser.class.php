@@ -22,9 +22,9 @@ class sfMelodyUser extends sfGuardSecurityUser
    * @author Maxime Picaud
    * @since 21 août 2010
    */
-  public function connect($service, $force = false)
+  public function connect($service, $config= array(), $force = false)
   {
-    $melody = sfMelody::getInstance($service);
+    $melody = sfMelody::getInstance($service, $config);
 
     if(!$this->isConnected($service) || $force)
     {
