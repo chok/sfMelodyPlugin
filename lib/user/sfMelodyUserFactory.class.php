@@ -52,14 +52,25 @@ class sfMelodyUserFactory
 
     $modified = false;
 
+    $last_call = null;
+    $last_result = null;
     foreach($config as $field => $field_config)
     {
-
       list($call, $call_parameters, $path, $prefix, $suffix) = $this->explodeConfig($field_config);
 
       if(!is_null($call))
       {
-        $result = $this->getService()->get($call, $call_parameters);
+        if($last_call == $call)
+        {
+          $result = $last_result;
+        }
+        else
+        {
+          $result = $this->getService()->get($call, $call_parameters);
+          $last_result = $result;
+          $last_call = $call;
+        }
+
         $result = $this->getService()->fromPath($result, $path);
 
         if($result)
