@@ -15,6 +15,16 @@ class sfTwitterMelody extends sfMelody1
     }
   }
 
+  public function setToken($token)
+  {
+    parent::setToken($token);
+
+    if($token->getStatus() == Token::STATUS_ACCESS)
+    {
+      $this->setAlias('me', 'users/show.json?user_id='.$this->getToken()->getParam('user_id'));
+    }
+  }
+
   public function getIdentifier()
   {
     return $this->getToken()->getParam('user_id');

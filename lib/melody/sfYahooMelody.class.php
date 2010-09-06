@@ -20,6 +20,19 @@ class sfYahooMelody extends sfMelody1
     $this->setCallParameter('format', 'json');
   }
 
+  public function setToken($token)
+  {
+    parent::setToken($token);
+
+    if($token->getStatus() == Token::STATUS_ACCESS)
+    {
+      $this->setAliases(array('me' => 'user/'.$this->getToken()->getParam('xoauth_yahoo_guid'),
+                              'uid' => $this->getToken()->getParam('xoauth_yahoo_guid')
+                              )
+                       );
+    }
+  }
+
   public function getIdentifier()
   {
     return $this->getToken()->getParam('xoauth_yahoo_guid');
