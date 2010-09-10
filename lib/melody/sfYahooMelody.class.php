@@ -9,21 +9,11 @@ class sfYahooMelody extends sfMelody1
 
     $this->setNamespace('default', 'http://social.yahooapis.com/v1');
 
-    if($this->getToken())
-    {
-      $this->setAliases(array('me' => 'user/'.$this->getToken()->getParam('xoauth_yahoo_guid'),
-                              'uid' => $this->getToken()->getParam('xoauth_yahoo_guid')
-                              )
-                       );
-    }
-
     $this->setCallParameter('format', 'json');
   }
 
-  public function setToken($token)
+  protected function initializeFromToken($token)
   {
-    parent::setToken($token);
-
     if($token && $token->getStatus() == Token::STATUS_ACCESS)
     {
       $this->setAliases(array('me' => 'user/'.$this->getToken()->getParam('xoauth_yahoo_guid'),
