@@ -10,7 +10,7 @@ class sfTwitterMelody extends sfMelody1
     $this->setNamespaces(array('default' => 'http://api.twitter.com'));
   }
 
-  public function intializeFromToken($token)
+  public function initializeFromToken($token)
   {
     if($token && $token->getStatus() == Token::STATUS_ACCESS)
     {
