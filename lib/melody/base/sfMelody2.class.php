@@ -1,16 +1,13 @@
 <?php
-class sfMelody2 extends sfOAuth2
+class sfMelody2 extends sfOAuth2 implements Serializable
 {
   protected $user_factory;
 
-  public function getUserFactory()
+  public function &getUserFactory()
   {
     if(is_null($this->user_factory))
     {
-      $config = $this->getConfig();
-      $user_config = isset($config['user'])?$config['user']:array();
-
-      $this->user_factory = new sfMelodyUserFactory($this, $user_config);
+      $this->user_factory = sfMelody::getUserFactory($this);
     }
 
     return $this->user_factory;
@@ -29,5 +26,15 @@ class sfMelody2 extends sfOAuth2
   public function connect($user, $auth_parameters = array(), $request_params = array())
   {
     $this->requestAuth($auth_parameters);
+  }
+
+  public function serialize()
+  {
+    return sfMelody::serialize($this);
+  }
+
+  public function unserialize($serialized)
+  {
+    return sfMelody::unserialize($this);
   }
 }

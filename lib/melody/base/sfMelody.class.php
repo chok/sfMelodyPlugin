@@ -50,4 +50,37 @@ class sfMelody
 
     return $services;
   }
+
+  public static function getUserFactory($melody)
+  {
+    $config = $melody->getConfig();
+    $user_config = isset($config['user'])?$config['user']:array();
+
+    return new sfMelodyUserFactory($melody, $user_config);
+  }
+
+  public static function sleep(&$melody)
+  {
+    $melody->getUserFactory()->setService(null);
+
+    $reflection = new ReflectionObject($melody);
+
+    $fields = array();
+    $ignored_properties = array('controller');
+
+    foreach($reflection->getProperties() as $property)
+    {
+      if(!in_array($property->getName(), $ignored_properties))
+      {
+        $fields[] = $property->getName();
+      }
+    }
+
+    return $fields;
+  }
+
+  public static function wakeup(&$melody)
+  {
+    $melody->getUserFactory()->setService($melody);
+  }
 }

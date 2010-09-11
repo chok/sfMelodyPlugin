@@ -7,10 +7,7 @@ class sfMelody1 extends sfOAuth1
   {
     if(is_null($this->user_factory))
     {
-      $config = $this->getConfig();
-      $user_config = isset($config['user'])?$config['user']:array();
-
-      $this->user_factory = new sfMelodyUserFactory($this, $user_config);
+      $this->user_factory = sfMelody::getUserFactory($this);
     }
 
     return $this->user_factory;
@@ -33,5 +30,15 @@ class sfMelody1 extends sfOAuth1
     $user->addToken($token);
 
     $this->requestAuth($auth_parameters);
+  }
+
+  public function __sleep()
+  {
+    return sfMelody::sleep($this);
+  }
+
+  public function __wakeup()
+  {
+    sfMelody::wakeup($this);
   }
 }
