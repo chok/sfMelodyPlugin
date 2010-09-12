@@ -1,5 +1,5 @@
 <?php
-class sfMelody2 extends sfOAuth2 implements Serializable
+class sfMelody2 extends sfOAuth2
 {
   protected $user_factory;
 
