@@ -28,13 +28,13 @@ class sfMelody2 extends sfOAuth2 implements Serializable
     $this->requestAuth($auth_parameters);
   }
 
-  public function serialize()
+  public function __sleep()
   {
-    return sfMelody::serialize($this);
+    return sfMelody::sleep($this);
   }
 
-  public function unserialize($serialized)
+  public function __wakeup($serialized)
   {
-    return sfMelody::unserialize($this);
+    return sfMelody::wakeup($this);
   }
 }
