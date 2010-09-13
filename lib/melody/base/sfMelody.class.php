@@ -42,7 +42,7 @@ class sfMelody
     foreach(sfConfig::getAll() as $key => $value)
     {
       $params = explode('_', $key);
-      if(in_array('melody', $params))
+      if(in_array('melody', $params) && is_array($value) && isset($value['key']) && isset($value['secret']))
       {
         $services[] = substr($key, 11);
       }

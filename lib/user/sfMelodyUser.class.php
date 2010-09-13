@@ -11,6 +11,7 @@
 class sfMelodyUser extends sfGuardSecurityUser
 {
   protected $tokens;
+  protected $connected_services;
 
   /**
    *
@@ -78,6 +79,33 @@ class sfMelodyUser extends sfGuardSecurityUser
     return !is_null($token) && $token->isValidToken();
   }
 
+  public function getConnectedServices()
+  {
+    if(is_null($this->connected_services))
+    {
+      $this->connected_services = array();
+
+      foreach(sfMelody::getAllServices() as $service)
+      {
+        if($this->isConnected($service))
+        {
+          $this->connected_services[] = $service;
+        }
+      }
+    }
+
+    return $this->connected_services;
+  }
+
+  /**
+   *
+   * @param Token $token
+   *
+   * Add a token to the user
+   *
+   * @author Maxime Picaud
+   * @since 13 sept. 2010
+   */
   public function addToken($token)
   {
     $service = $token->getName();
