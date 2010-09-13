@@ -11,7 +11,6 @@
 class sfMelodyUser extends sfGuardSecurityUser
 {
   protected $tokens;
-  protected $connected_services;
 
   /**
    *
@@ -79,22 +78,44 @@ class sfMelodyUser extends sfGuardSecurityUser
     return !is_null($token) && $token->isValidToken();
   }
 
+  /**
+   *
+   *
+   *
+   * Allow to retrieve name of services which is connected with the user
+   *
+   * @author Maxime Picaud
+   * @since 13 sept. 2010
+   */
   public function getConnectedServices()
   {
-    if(is_null($this->connected_services))
-    {
-      $this->connected_services = array();
+    $connected_services = array();
 
-      foreach(sfMelody::getAllServices() as $service)
+    foreach(sfMelody::getAllServices() as $service)
+    {
+      if($this->isConnected($service))
       {
-        if($this->isConnected($service))
-        {
-          $this->connected_services[] = $service;
-        }
+        $this->connected_services[] = $service;
       }
     }
 
-    return $this->connected_services;
+    return $connected_services;
+  }
+
+  public function getUnconnectedServices()
+  {
+    $unconnected_services = array();
+    $connected_services = $this->getConnectedServices();
+
+    foreach(sfMelody::getAllServices() as $service)
+    {
+      if(!in_array($service, $connected_services))
+      {
+        $unconnected_services[] = $service;
+      }
+    }
+
+    return $unconnected_services;
   }
 
   /**
