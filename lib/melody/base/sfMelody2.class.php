@@ -33,7 +33,7 @@ class sfMelody2 extends sfOAuth2
     return sfMelody::sleep($this);
   }
 
-  public function __wakeup($serialized)
+  public function __wakeup()
   {
     return sfMelody::wakeup($this);
   }
