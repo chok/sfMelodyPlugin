@@ -95,7 +95,7 @@ class sfMelodyUser extends sfGuardSecurityUser
     {
       if($this->isConnected($service))
       {
-        $this->connected_services[] = $service;
+        $connected_services[] = $service;
       }
     }
 
