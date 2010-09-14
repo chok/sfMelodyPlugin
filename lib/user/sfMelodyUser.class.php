@@ -304,7 +304,7 @@ class sfMelodyUser extends sfGuardSecurityUser
     {
       if($this->hasAttribute($service.'_'.$status.'_token', 'Melody'))
       {
-        $this->getAttributeHolde()->remove($service.'_'.$status.'_token', 'Melody');
+        $this->getAttributeHolder()->remove($service.'_'.$status.'_token', 'Melody');
       }
 
       if($this->isAuthenticated())
