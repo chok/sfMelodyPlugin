@@ -64,7 +64,7 @@ Available options in app.yml  :
     all:
       melody:
         create_user: false            # create a new user if not logged when you connect to a service
-        register_redirect: false      # you can redirect to a register form or anything else by specify
+        redirect_register: false      # you can redirect to a register form or anything else by specify
                                       # a valid route like "@user_register" 
         name:
           key:  my_service_key
