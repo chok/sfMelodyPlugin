@@ -6,12 +6,25 @@ class sfFacebookMelody extends sfMelody2
     $this->setRequestAuthUrl('https://graph.facebook.com/oauth/authorize');
     $this->setAccessTokenUrl('https://graph.facebook.com/oauth/access_token');
 
-    $this->setNamespaces(array('default' => 'https://graph.facebook.com'));
+    $this->setNamespaces(array('default' => 'https://graph.facebook.com',
+                               'api'     => 'https://api.facebook.com'));
+
+    $this->setAlias('fql', 'method/fql.query');
 
     if(isset($config['scope']))
     {
       $this->setAuthParameter('scope', implode(',', $config['scope']));
     }
+  }
+
+  public function fql($query)
+  {
+    $ns = $this->getCurrentNamespace();
+    $this->ns('api');
+    $result = $this->getFql(null, array('query' => $query, 'format' => 'json'));
+    $this->ns($ns);
+
+    return $result;
   }
 
   public function getIdentifier()
