@@ -66,7 +66,7 @@ class sfMelody
     $reflection = new ReflectionObject($melody);
 
     $fields = array();
-    $ignored_properties = array('controller');
+    $ignored_properties = array('controller', 'context', 'logger');
 
     foreach($reflection->getProperties() as $property)
     {
