@@ -41,7 +41,7 @@ class sfYahooMelody extends sfMelody1
     $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $this->getConsumer(), $this->getToken('oauth'));
 
     $params = OAuthUtil::parse_parameters($this->call($this->getAccessTokenUrl(), $request->to_postdata()));
-    var_dump($params);die();
+    
     $oauth_token = isset($params['oauth_token'])?$params['oauth_token']:null;
     $oauth_token_secret = isset($params['oauth_token_secret'])?$params['oauth_token_secret']:null;
 
