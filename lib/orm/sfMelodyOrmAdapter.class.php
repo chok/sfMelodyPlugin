@@ -65,7 +65,7 @@ class sfMelodyOrmAdapter
       case self::DOCTRINE:
         return Doctrine::getTable($this->getModel());
       case self::PROPEL:
-        return $model.'Peer';
+        return $this->getModel() . 'Peer';
     }
   }
 

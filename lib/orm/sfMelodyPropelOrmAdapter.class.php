@@ -27,7 +27,7 @@ class sfMelodyPropelOrmAdapter extends sfMelodyOrmAdapter
 
       if($reflection->hasConstant($constant_key) && is_callable(array($user, $method)))
       {
-        $constant = $reflection->getConstants($constant_key);
+        $constant = $reflection->getConstant($constant_key);
         $c->add($constant, $user->$method());
       }
       else
