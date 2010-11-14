@@ -154,7 +154,7 @@ Then put the config in app.yml:
             last_name: 
               call: me
               path: last_name
-            email_adress:               
+            email_address:               
               call: me                  
               path: email               
               key: true                 # it's a key to retrieve user from other services based on this information
