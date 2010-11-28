@@ -1,0 +1,18 @@
+.messenger-button
+{
+  background: url("http://secure.wlxrs.com/_D/F$Live.SiteContent.PROD.Connect/15.3.5716/images/imgtile.png") no-repeat scroll 0 -38px white;
+  border-color: #B2E8FE #9CD1E8 #9CD1E8 #B2E8FE;
+  border-right: 1px solid #9CD1E8;
+  border-style: solid;
+  border-width: 1px;
+  color: #006699;
+  cursor: pointer;
+  font-family: 'Segoe UI',Tahoma,Geneva,Verdana;
+  font-size: 12px;
+  font-weight: bold;
+  height: 22px;
+  margin: 1px;
+  padding: 1px 5px 4px 26px;
+  vertical-align: top;
+  text-decoration: none;
+}
