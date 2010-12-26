@@ -1,10 +1,31 @@
 <?php
 
+function _get_social_button_templates($service)
+{
+  $social_button_templates = array('messenger' => array('content' => '<span id="messenger-bg"></span><span>Connect</span>', 'type' => 'text'));
+
+  return isset($social_button_templates[$service])?$social_button_templates[$service]:array();
+}
+
+
+
 function social_button($service, $route, $options = array())
 {
-  use_stylesheet('/sfMelodyPlugin/css/button.css');
-  
-  $options = array_merge(array('button-type' => 'default', 'type' => 'image', 'class' => $service.'-button'), $options);
+  $default_options = array(
+                           'path'         => '/sfMelodyPlugin/images/'.$service.'/',
+                           'image'				=> 'default',
+                           'type'					=> 'image',
+                           'class'				=> $service.'-button',
+                           'stylesheet'		=> '/sfMelodyPlugin/css/melody.css',
+                           'content'			=> ''
+                          );
+
+  $options = array_merge($default_options, _get_social_button_templates($service), $options);
+
+  if ($options['stylesheet'])
+  {
+    use_stylesheet($options['stylesheet']);
+  }
 
   $content = null;
 
@@ -15,11 +36,11 @@ function social_button($service, $route, $options = array())
       break;
     default:
     case 'image':
-      $image = $options['button-type'].'.png';
-      $content = image_tag('/sfMelodyPlugin/images/'.$service.'/'.$image, array('alt' => 'Connect with '.$service));
+      $content = image_tag($options['path'].$options['image'].'.png', array('alt' => 'Connect with '.$service));
       break;
   }
 
-  unset($options['button-type'], $options['type'], $options['image']);
+  unset($options['path'], $options['image'], $options['type'], $options['stylesheet'], $options['content']);
+
   return link_to($content, $route, $options);
 }

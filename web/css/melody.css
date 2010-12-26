@@ -1,0 +1,43 @@
+.messenger-button
+{
+  background: #f48e20;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#F38920', endColorstr='#EF671D');
+  background: -webkit-gradient(linear, left top, left bottom, from(#F38920), to(#EF671D)); 
+  background: -moz-linear-gradient(top, #F38920, #EF671D); 
+  border-color: #F79449 #F48643 #F49530 #F89A49;
+  border-style: solid;
+  border-width: 1px;
+  color: #006699;
+  cursor: pointer;
+  font-family: 'Segoe UI',Tahoma,Geneva,Verdana;
+  font-size: 12px;
+  font-weight: bold;
+  height: 20px;
+  margin: 1px;
+  display: inline-block;
+  padding: 0;
+  vertical-align: top;
+  text-decoration: none;
+}
+
+.messenger-button #messenger-bg
+{
+  background: url("//secure.wlxrs.com/_D/F$Live.SiteContent.PROD.Connect/15.0.5717/images/imgtile.png") no-repeat scroll 0 0 transparent;
+  width: 25px;
+  height: 20px;
+  padding: 0;
+  display: inline-block;
+}
+
+.messenger-button span
+{
+  padding: 0 2px 0 1px;
+  font-size: 9pt;
+  color: #ffffff;
+  display: block;
+  float: left;
+  height: 20px;
+  line-height: 20px;
+  border-bottom: 1px solid #F78F38;
+  border-top: 1px solid #F6A038;
+}

@@ -129,6 +129,10 @@ class sfMelodyBaseActions extends sfActions
     {
       $code = $this->getRequestParameter('oauth_verifier');
     }
+    else if($this->getMelody()->getVersion() == 1.5)
+    {
+      $code = $this->getRequestParameter('wrap_verification_code');
+    }
     else
     {
       $code = $this->getRequestParameter('code');
