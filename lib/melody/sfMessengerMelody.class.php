@@ -12,6 +12,7 @@ class sfMessengerMelody extends sfMelodyWrap
     }
 
     $this->setNamespace('default', 'http://apis.live.net/V4.1');
+    $this->setNamespace('profile', 'http://profiles.apis.live.net/V4.1');
 
     $this->setCallParameter('format', 'json');
   }
@@ -21,7 +22,7 @@ class sfMessengerMelody extends sfMelodyWrap
     if($token && $token->getStatus() == Token::STATUS_ACCESS)
     {
       $this->setAliases(array('contacts' => 'cid-'.strtoupper($this->getIdentifier()).'/Contacts/AllContacts',
-                              'uid' => $this->getToken()->getParam('xoauth_yahoo_guid')
+                              'invitations' => 'cid-'.strtoupper($this->getIdentifier()).'/Contacts/Invitations',
                               )
                        );
     }
