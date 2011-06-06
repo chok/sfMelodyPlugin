@@ -16,8 +16,8 @@ For Doctrine, install:
   
 For Propel:
 
-  * [sfDoctrineOAuthPlugin](http://github.com/chok/sfPropelOAuthPlugin)
-  * [sfDoctrinePlugin](http://github.com/chok/sfGuardPlugin)
+  * [sfPropelOAuthPlugin](http://github.com/chok/sfPropelOAuthPlugin)
+  * [sfGuardPlugin](http://github.com/chok/sfGuardPlugin)
 
 
  * Install
