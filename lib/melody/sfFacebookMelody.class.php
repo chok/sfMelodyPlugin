@@ -15,6 +15,11 @@ class sfFacebookMelody extends sfMelody2
     {
       $this->setAuthParameter('scope', implode(',', $config['scope']));
     }
+
+    if(isset($config['display']))
+    {
+      $this->setAuthParameter('display', $config['display']);
+    }
   }
 
   public function fql($query)
