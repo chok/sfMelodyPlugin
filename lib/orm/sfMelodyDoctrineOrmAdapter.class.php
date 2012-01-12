@@ -15,7 +15,7 @@ class sfMelodyDoctrineOrmAdapter extends sfMelodyOrmAdapter
     $config = $user_factory->getConfig();
     $user = $user_factory->getUser();
     $keys = $user_factory->getKeys();
-    var_dump($keys);
+
     if (count($keys) > 0)
     {
       $q = Doctrine::getTable('sfGuardUser')
