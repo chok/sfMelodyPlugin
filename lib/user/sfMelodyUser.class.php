@@ -336,7 +336,7 @@ class sfMelodyUser extends sfGuardSecurityUser
   
   public function getStoredMelody()
   {
-    if ($melody = $this->getUser()->getAttribute('melody', null))
+    if ($melody = $this->getAttribute('melody', null))
     {
       return unserialize($melody);
     }
@@ -346,7 +346,7 @@ class sfMelodyUser extends sfGuardSecurityUser
   
   public function getStoredMelodyUser()
   {
-    if ($melody_user = $this->getUser()->getAttribute('melody_user', null))
+    if ($melody_user = $this->getAttribute('melody_user', null))
     {
       return unserialize($melody_user);
     }
