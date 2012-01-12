@@ -333,9 +333,29 @@ class sfMelodyUser extends sfGuardSecurityUser
 
     return sfMelody::getInstance($service, $config);
   }
+  
+  public function getStoredMelody()
+  {
+    if ($melody = $this->getUser()->getAttribute('melody', null))
+    {
+      return unserialize($melody);
+    }
+    
+    return null;     
+  }
+  
+  public function getStoredMelodyUser()
+  {
+    if ($melody_user = $this->getUser()->getAttribute('melody_user', null))
+    {
+      return unserialize($melody_user);
+    }
+    
+    return null;
+  }
 
   protected function getOrmAdapter($model)
   {
     return sfMelodyOrmAdapter::getInstance($model);
-  }
+  }  
 }
