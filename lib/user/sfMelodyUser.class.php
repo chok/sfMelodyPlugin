@@ -25,7 +25,7 @@ class sfMelodyUser extends sfGuardSecurityUser
   public function connect($service, $config= array(), $force = false)
   {
     $melody = sfMelody::getInstance($service, $config);
-
+//var_dump('connected', $this->isConnected($service));die();
     if(!$this->isConnected($service) || $force)
     {
       $this->removeTokens($service);
@@ -35,6 +35,7 @@ class sfMelodyUser extends sfGuardSecurityUser
     }
     else
     {
+  //    var_dump($melody->getCallback());die();
       $melody->getController()->redirect($melody->getCallback());
     }
   }
