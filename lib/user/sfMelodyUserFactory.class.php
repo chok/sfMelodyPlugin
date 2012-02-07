@@ -78,7 +78,8 @@ class sfMelodyUserFactory
           $result = $prefix.$result.$suffix;
           $method = 'set'.sfInflector::classify($field);
 
-          if(is_callable(array($user, $method)))
+          //sfGuardUser's parent has magic __call
+          if(is_callable(array($user, $method)) && method_exists($user, $method))
           {
             $user->$method($result);
             $modified = true;
