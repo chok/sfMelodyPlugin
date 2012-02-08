@@ -47,10 +47,19 @@ class sfMelodyUserFactory
     //$user_class = sfConfig::get('app_melody_user_class', 'sfGuardUser');
 
     $user = new sfGuardUser();
+	if(sfConfig::get('app_melody_use_profile', 'false') && sfConfig::get('app_sf_guard_plugin_profile_class', ''))
+	{
+		$user_profile_classname = sfConfig::get('app_sf_guard_plugin_profile_class', '');
+		if($user_profile_classname)
+		{
+			$user_profile = new $user_profile_classname;
+		}
+	}
 
     $config = $this->getConfig();
 
     $modified = false;
+	$user_profile_modified = false;
 
     $last_call = null;
     $last_result = null;
@@ -84,6 +93,11 @@ class sfMelodyUserFactory
             $user->$method($result);
             $modified = true;
           }
+		  elseif(isset($user_profile) && is_callable(array($user_profile, $method)) && method_exists($user_profile, $method))
+		  {
+			  $user_profile->$method($result);
+			  $user_profile_modified = true;
+		  }
         }
       }
     }
@@ -92,6 +106,11 @@ class sfMelodyUserFactory
     {
       $user->save();
     }
+	  
+	if($user_profile_modified)
+	{
+		$user->setSfGuardUserProfile($user_profile);
+	}
 
     return $user;
   }
