@@ -107,7 +107,7 @@ class sfMelodyUserFactory
       $user->save();
     }
 	  
-	if($user_profile_modified)
+	if(isset($user_profile))
 	{
 		$user->setSfGuardUserProfile($user_profile);
 	}
