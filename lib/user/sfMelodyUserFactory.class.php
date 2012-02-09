@@ -59,7 +59,6 @@ class sfMelodyUserFactory
     $config = $this->getConfig();
 
     $modified = false;
-	$user_profile_modified = false;
 
     $last_call = null;
     $last_result = null;
@@ -96,21 +95,20 @@ class sfMelodyUserFactory
 		  elseif(isset($user_profile) && is_callable(array($user_profile, $method)) && method_exists($user_profile, $method))
 		  {
 			  $user_profile->$method($result);
-			  $user_profile_modified = true;
 		  }
         }
       }
     }
 
+	if(isset($user_profile))
+	{
+		$user_profile->setSfGuardUser($user);
+	}
+
     if($save)
     {
       $user->save();
     }
-	  
-	if(isset($user_profile))
-	{
-		$user->setSfGuardUserProfile($user_profile);
-	}
 
     return $user;
   }

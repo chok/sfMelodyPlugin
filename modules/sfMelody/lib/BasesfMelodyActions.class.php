@@ -62,8 +62,11 @@ class BasesfMelodyActions extends sfMelodyBaseActions
       if(!$user && ( $create_user || $redirect_register))
       {
         $user = $melody->getUser();
+
         if($redirect_register)
         {
+		  //Bad workflow
+		  $this->getUser()->setAttribute('melody_user_profile', serialize($user->getSfGuardUserProfile()));
           $this->getUser()->setAttribute('melody_user', serialize($user));
           $this->getUser()->setAttribute('melody', serialize($melody));
 
