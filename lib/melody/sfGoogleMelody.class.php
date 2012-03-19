@@ -22,6 +22,7 @@ class sfGoogleMelody extends sfMelody1
                                   'sidewiki' => 'http://www.google.com/sidewiki/feeds',
                                   'sites' => 'http://sites.google.com/feeds',
                                   'spreadsheets' => 'http://spreadsheets.google.com/feeds',
+                                  'userinfo' => 'https://www.googleapis.com/userinfo',
                                   'wave' => 'http://wave.googleusercontent.com/api/rpc',
                                   'webmaster_tools' => 'http://www.google.com/webmasters/tools/feeds',
                                   'youtube' => 'http://gdata.youtube.com'
