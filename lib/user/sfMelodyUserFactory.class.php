@@ -112,7 +112,7 @@ class sfMelodyUserFactory
       $path = isset($config['path'])?$config['path']:null;
       $prefix = isset($config['prefix'])?$config['prefix']:null;
       $suffix = isset($config['suffix'])?$config['suffix']:null;
-      $ns = isset($config['namespace'])?$config['namespace']:null;
+      $ns = isset($config['namespace'])?$config['namespace']:'default';
     }
     else
     {
