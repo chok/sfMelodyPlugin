@@ -48,6 +48,20 @@ class sfGoogleMelody extends sfMelody1
 
     $this->init($config, 'api', 'use');
   }
+  
+  public function getIdentifier()
+  {
+     $prevNs = $this->getCurrentNamespace();  
+     if ($data = $this->ns('plus')->get('people/me')) {
+         $return = $data->id;
+     } elseif ($data = $this->ns('userinfo')->get('email')) {
+         $return = $data->data->email;
+     } else {
+         $return = null;
+     }
+     $this->ns($prevNs);
+     return $return;
+  }
 
   public function useApi($api)
   {
