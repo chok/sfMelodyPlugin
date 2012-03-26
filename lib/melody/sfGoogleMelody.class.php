@@ -24,6 +24,7 @@ class sfGoogleMelody extends sfMelody1
                                   'sites' => 'http://sites.google.com/feeds',
                                   'spreadsheets' => 'http://spreadsheets.google.com/feeds',
                                   'userinfo' => 'https://www.googleapis.com/userinfo',
+                                  'oauth2' => 'https://www.googleapis.com/oauth2/v1',
                                   'wave' => 'http://wave.googleusercontent.com/api/rpc',
                                   'webmaster_tools' => 'http://www.google.com/webmasters/tools/feeds',
                                   'youtube' => 'http://gdata.youtube.com'
@@ -52,10 +53,8 @@ class sfGoogleMelody extends sfMelody1
   public function getIdentifier()
   {
      $prevNs = $this->getCurrentNamespace();  
-     if ($data = $this->ns('plus')->get('people/me')) {
+     if ($data = $this->ns('oauth2')->get('userinfo')) {
          $return = $data->id;
-     } elseif ($data = $this->ns('userinfo')->get('email')) {
-         $return = $data->data->email;
      } else {
          $return = null;
      }
