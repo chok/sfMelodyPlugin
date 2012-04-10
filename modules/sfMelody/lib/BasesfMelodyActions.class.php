@@ -91,6 +91,9 @@ class BasesfMelodyActions extends sfMelodyBaseActions
 
     $this->getUser()->addToken($access_token);
 
+	if ($request->getReferer())
+		$this->redirect($request->getReferer());
+
     $this->redirect($this->getCallback());
   }
 }
