@@ -91,8 +91,14 @@ class BasesfMelodyActions extends sfMelodyBaseActions
 
     $this->getUser()->addToken($access_token);
 
-	if ($this->getUser()->getAttribute('auth_redirect_url'))
-		  $this->redirect($this->getUser()->getAttribute('auth_redirect_url'));
+
+	if($this->getUser()->hasAttribute('auth_redirect_url'))
+	{
+		$redirect_url = $this->getUser()->getAttribute('auth_redirect_url');
+		$this->getUser()->getAttributeHolder()->remove('auth_redirect_url');
+		$this->redirect($redirect_url);
+		return sfView::NONE;
+	}
 
     $this->redirect($this->getCallback());
   }
