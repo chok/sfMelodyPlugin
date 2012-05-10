@@ -22,12 +22,12 @@ For Propel:
 
  * Install
  
-	    $ symfony plugin:install sfMelodyPlugin
-	 
+      $ symfony plugin:install sfMelodyPlugin
+   
  * Clear cache
  
-	    $ symfony cc
-	  
+      $ symfony cc
+    
  * Enable the sfMelody module in settings.yml:
  
         all:
@@ -52,6 +52,7 @@ At this time sfMelody has 8 melodies :) :
  * LinkedIn
  * MySpace
  * Twitter
+ * Skyrock
  * Neutral1  #A base class to support OAuth1
  * Neutral2  #A base class to support OAuth2
  
@@ -165,7 +166,8 @@ Then put the config in app.yml:
           ...
         google:
           ...
-          
+        skyrock:
+          ...  
 
 
 For example we put a link:
@@ -248,6 +250,7 @@ To make api calls, you have to know api for each service provider :
   * Google : http://code.google.com/intl/fr/apis/gdata/docs/directory.html
   * Facebook: http://developers.facebook.com/docs/reference/api/
   * Yahoo! : http://developer.yahoo.com/everything.html#apis
+  * Skyrock : http://www.skyrock.com/developer/documentation/api/
   * ...
   
 ## Register Application ##
@@ -255,6 +258,7 @@ To make api calls, you have to know api for each service provider :
  * Google: https://www.google.com/accounts/ManageDomains
  * Facebook: http://www.facebook.com/developers/apps.php
  * Yahoo! : https://developer.apps.yahoo.com/projects
+ * Skyrock : https://www.skyrock.com/developer/application/
  
  
 ## Namespaces ##
@@ -312,6 +316,10 @@ You can use all these namespaces in the api config to have permissions to use th
    * MySpace
 
       * default:  http://api.myspace.com/v1
+
+  * Skyrock
+
+     * default:   http://api.skyrock.com/v2
       
       
 ## Aliases ##
