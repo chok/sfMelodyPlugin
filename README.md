@@ -44,7 +44,7 @@ For Propel:
 ## Melodies ##
 
 
-At this time sfMelody has 8 melodies :) :
+At this time sfMelody has 9 melodies :) :
 
  * Facebook
  * Google
