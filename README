@@ -319,7 +319,7 @@ You can use all these namespaces in the api config to have permissions to use th
 
   * Skyrock
 
-     * default:   http://api.skyrock.com/v2
+     * default:   https://api.skyrock.com/v2
       
       
 ## Aliases ##
@@ -342,7 +342,11 @@ Default aliases :
       
   * MySpace
     
-      * me: user.json      
+      * me: user.json
+
+  * Skyrock
+    
+      * me: user/get.json          
 
 
 ## Contribute ##
