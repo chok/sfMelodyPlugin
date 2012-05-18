@@ -36,7 +36,8 @@ class BasesfMelodyActions extends sfMelodyBaseActions
       $dispatcher = $this->getContext()->getEventDispatcher();
       $user = $dispatcher->filter($event, $user)->getReturnValue();
     }
-    else
+	//Емана!! 0ЩO
+    elseif($access_token->getTokenKey())
     {
       $old_token = $this->getOrmAdapter('Token')->findOneByNameAndIdentifier($melody->getName(), $melody->getIdentifier());
 
@@ -86,17 +87,18 @@ class BasesfMelodyActions extends sfMelodyBaseActions
 			$this->forward404();
 		}
       }
-    }
 
-    if($user)
-    {
-      $access_token->setUserId($user->getId());
 
-      if(!$this->getUser()->isAuthenticated() && $user->getIsActive())
-      {
-        $this->getUser()->signin($user, sfConfig::get('app_melody_remember_user', true));
-      }
-    }
+		if($user)
+		{
+		  $access_token->setUserId($user->getId());
+
+		  if(!$this->getUser()->isAuthenticated() && $user->getIsActive())
+		  {
+			$this->getUser()->signin($user, sfConfig::get('app_melody_remember_user', true));
+		  }
+		}
+	}
 	elseif(sfConfig::get('app_melody_oauth_fail', false))
 	{
 		$this->getUser()->setAttribute('error_info', $access_token->getResponseInfo());
