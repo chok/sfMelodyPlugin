@@ -72,10 +72,19 @@ class BasesfMelodyActions extends sfMelodyBaseActions
 
           $this->redirect($redirect_register);
         }
-        else
+        elseif($user)
         {
           $user->save();
         }
+		elseif(sfConfig::get('app_melody_oauth_fail', false))
+		{
+			$this->getUser()->setAttribute('error_info', $access_token->getResponseInfo());
+			$this->redirect(sfConfig::get('app_melody_oauth_fail', false));
+		}
+		else
+		{
+			$this->forward404();
+		}
       }
     }
 
@@ -88,6 +97,15 @@ class BasesfMelodyActions extends sfMelodyBaseActions
         $this->getUser()->signin($user, sfConfig::get('app_melody_remember_user', true));
       }
     }
+	elseif(sfConfig::get('app_melody_oauth_fail', false))
+	{
+		$this->getUser()->setAttribute('error_info', $access_token->getResponseInfo());
+		$this->redirect(sfConfig::get('app_melody_oauth_fail', false));
+	}
+	else
+	{
+		$this->forward404();
+	}
 
     $this->getUser()->addToken($access_token);
 
