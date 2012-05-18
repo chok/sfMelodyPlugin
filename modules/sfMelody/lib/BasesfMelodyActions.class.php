@@ -21,7 +21,12 @@ class BasesfMelodyActions extends sfMelodyBaseActions
     $melody = $this->getMelody();
 
     $melody->setCallback('@melody_access?service='.$melody->getName());
-    $access_token = $melody->getAccessToken($this->getCode());
+	$parameters = array();
+	if($request->getParameter('redirect_uri'))
+	{
+		$parameters['redirect_uri'] = $request->getParameter('redirect_uri');
+	}
+    $access_token = $melody->getAccessToken($this->getCode(), $parameters);
 
     $melody->setToken($access_token);
 
