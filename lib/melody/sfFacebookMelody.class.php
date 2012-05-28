@@ -50,4 +50,14 @@ class sfFacebookMelody extends sfMelody2
       $token->setExpire(time() + $token->getParam('expires'));
     }
   }
+
+	protected function getExpire($token)
+	{
+		if($token->getParam('expires'))
+		{
+			return time() + $token->getParam('expires');
+		}
+
+		return null;
+	}
 }
