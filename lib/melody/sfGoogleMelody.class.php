@@ -19,9 +19,12 @@ class sfGoogleMelody extends sfMelody1
                                   'open_social' => 'http://www-opensocial.googleusercontent.com/api/people',
                                   'orkut' => 'http://www.orkut.com/social/rest',
                                   'picasa' => 'http://picasaweb.google.com/data',
+                                  'plus' => 'https://www.googleapis.com/plus/v1',
                                   'sidewiki' => 'http://www.google.com/sidewiki/feeds',
                                   'sites' => 'http://sites.google.com/feeds',
                                   'spreadsheets' => 'http://spreadsheets.google.com/feeds',
+                                  'userinfo' => 'https://www.googleapis.com/userinfo',
+                                  'oauth2' => 'https://www.googleapis.com/oauth2/v1',
                                   'wave' => 'http://wave.googleusercontent.com/api/rpc',
                                   'webmaster_tools' => 'http://www.google.com/webmasters/tools/feeds',
                                   'youtube' => 'http://gdata.youtube.com'
@@ -37,7 +40,7 @@ class sfGoogleMelody extends sfMelody1
     $this->addNamespaces(self::$apis);
     $this->setCallParameter('alt', 'json');
     $this->setAlias('contacts', 'm8/feeds/contacts');
-    $this->setAlias('me', 'default/full');
+    //$this->setAlias('me', 'default/full');
 
     if(isset($config['scope']))
     {
@@ -45,6 +48,18 @@ class sfGoogleMelody extends sfMelody1
     }
 
     $this->init($config, 'api', 'use');
+  }
+  
+  public function getIdentifier()
+  {
+     $prevNs = $this->getCurrentNamespace();  
+     if ($data = $this->ns('oauth2')->get('userinfo')) {
+         $return = $data->id;
+     } else {
+         $return = null;
+     }
+     $this->ns($prevNs);
+     return $return;
   }
 
   public function useApi($api)
