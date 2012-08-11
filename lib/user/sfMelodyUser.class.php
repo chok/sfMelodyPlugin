@@ -58,6 +58,8 @@ class sfMelodyUser extends sfGuardSecurityUser
   public function signOut()
   {
     $this->getAttributeHolder()->removeNamespace('Melody');
+    $this->getAttributeHolder()->remove('melody');
+    $this->getAttributeHolder()->remove('melody_user');
     parent::signOut();
   }
 
