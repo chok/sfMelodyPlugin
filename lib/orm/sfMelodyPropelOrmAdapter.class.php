@@ -36,6 +36,10 @@ class sfMelodyPropelOrmAdapter extends sfMelodyOrmAdapter
       }
     }
 
+	$map = $c->getMap();
+	if (empty($map))
+		throw new OAuthException('Cannot retrieve information for user', 1000);
+
     return sfGuardUserPeer::doSelectOne($c);
   }
 }
