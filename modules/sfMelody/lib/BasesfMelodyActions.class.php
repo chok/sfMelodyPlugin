@@ -44,7 +44,8 @@ class BasesfMelodyActions extends sfMelodyBaseActions
 	//Емана!! 0ЩO
     elseif($access_token->getTokenKey())
     {
-      $old_token = $this->getOrmAdapter('Token')->findOneByNameAndIdentifier($melody->getName(), $melody->getIdentifier(), $access_token->getExpire());
+//      $old_token = $this->getOrmAdapter('Token')->findOneByNameAndIdentifier($melody->getName(), $melody->getIdentifier(), $access_token->getExpire());
+		$old_token = TokenPeer::findOneByNameAndIdentifier($melody->getName(), $melody->getIdentifier(), $access_token->getExpire());
 
       //try to get user from the token
       if($old_token)
