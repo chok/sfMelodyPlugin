@@ -64,6 +64,7 @@ class BasesfMelodyActions extends sfMelodyBaseActions
         $user = $melody->getUser();
         if($redirect_register)
         {
+          $this->getUser()->setAttribute('access_token', serialize($access_token));
           $this->getUser()->setAttribute('melody_user', serialize($user));
           $this->getUser()->setAttribute('melody', serialize($melody));
 
